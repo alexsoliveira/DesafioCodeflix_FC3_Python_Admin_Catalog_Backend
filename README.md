@@ -6,5 +6,5 @@ Administração de Catálogo - Codeflix - Python
 [x] Ao criar uma nova categoria um identificador deve ser gerado no formato (uuid).
 [x] Ao criar uma categoria os campos id, descrição e isActive não serão obrigatórios.
 [x] Caso a propriedade isActive não seja informada, deverá receber como default o valor true.
-[ ] Teste __str__
-[ ] Teste __repr__
+[X] Teste __str__
+[X] Teste __repr__

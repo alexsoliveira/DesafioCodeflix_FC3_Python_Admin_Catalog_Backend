@@ -13,7 +13,7 @@ class TestCategory:
         #     Category()
 
     def test_name_must_have_less_than_255_characters(self):
-        with pytest.raises(ValueError, match="name must be less than 256 characters"):
+        with pytest.raises(ValueError, match="name cannot be longer than 255 characters"):
             Category(name="a" * 256)
 
     def test_category_must_be_created_with_id_as_uuid_by_default(self):
@@ -38,6 +38,7 @@ class TestCategory:
             description="Filmes em geral",
             is_active=False,
         )
+
         assert category.id == cat_id
         assert category.name == "Filmes"
         assert category.description == "Filmes em geral"
@@ -46,6 +47,11 @@ class TestCategory:
         # self.assertEqual(category.name, "Filmes")
         # self.assertEqual(category.description, "Filmes em geral")
         # self.assertEqual(category.is_active, False)
+
+    def test_cannot_create_category_with_empty_name(self):
+        with pytest.raises(ValueError, match="name cannot be empty"):
+            Category(name="")
+
 
     def test_category_string_representation(self):
         category = Category(name="Filmes", description="Filmes em geral", is_active=False)
@@ -58,5 +64,67 @@ class TestCategory:
         # self.assertEqual(repr(category), f"<Category: Filmes ({cat_id})>")
 
 
-# if __name__ == "__main__":
-#     unittest.main()
+class TestUpdateCategory:
+    def test_update_category_with_name_and_description(self):
+        category = Category(name="Filme", description="Filmes em geral")
+
+        category.update_category(name="Série", description="Séries em geral")
+
+        assert category.name == "Série"
+        assert category.description == "Séries em geral"
+
+    def test_update_category_with_invalid_name(self):
+        category = Category(name="Filme", description="Filmes em geral")
+
+        with pytest.raises(ValueError, match="name cannot be longer than 255 characters"):
+            category.update_category(name="a" * 256, description="Séries em geral")
+
+    def test_cannot_update_category_with_empty_name(self):
+        with pytest.raises(ValueError, match="name cannot be empty"):
+            Category(name="")
+
+class TestActivateCategory:
+    def test_activate_inactive_category(self):
+        category = Category(
+            name="Filme", 
+            description="Filmes em geral",
+            is_active=False,
+        )
+
+        category.activate()
+
+        assert category.is_active is True
+
+    def test_activate_active_category(self):
+        category = Category(
+            name="Filme", 
+            description="Filmes em geral",
+            is_active=True,
+        )
+
+        category.activate()
+
+        assert category.is_active is True
+
+class TestDeactivateCategory:
+    def test_deactivate_active_category(self):
+        category = Category(
+            name="Filme", 
+            description="Filmes em geral",
+            is_active=True,
+        )
+
+        category.deactivate()
+
+        assert category.is_active is False
+
+    def test_deactivate_inactive_category(self):
+        category = Category(
+            name="Filme", 
+            description="Filmes em geral",
+            is_active=False,
+        )
+
+        category.deactivate()
+
+        assert category.is_active is False
