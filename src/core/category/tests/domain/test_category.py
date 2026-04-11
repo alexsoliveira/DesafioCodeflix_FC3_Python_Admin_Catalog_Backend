@@ -2,7 +2,8 @@ import unittest # std library
 import uuid
 import pytest
 from uuid import UUID
-from category import Category
+
+from src.core.category.domain.category import Category
 
 class TestCategory:
     def test_name_is_required(self):
