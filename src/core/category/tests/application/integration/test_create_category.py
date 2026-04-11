@@ -27,5 +27,15 @@ class TestCreateCategory:
         assert persisted_category.description == "Categoria para filmes"
         assert persisted_category.is_active is True
 
+    def test_create_category_with_invalid_data(self):
+        repository = InMemoryCategoryRepository()
+        use_case = CreateCategory(repository=repository)
+
+        with pytest.raises(InvalidCategoryData, match="name cannot be empty") as exc_info:
+            use_case.execute(CreateCategoryRequest(name=""))
+        
+        assert exc_info.type is InvalidCategoryData
+        assert str(exc_info.value) == "name cannot be empty"
+
         
         
