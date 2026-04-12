@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from uuid import UUID
 
@@ -18,4 +20,8 @@ class CategoryRepository(ABC):
 
     @abstractmethod
     def update(self, category: Category) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def list(self) -> list[Category]:
         raise NotImplementedError
