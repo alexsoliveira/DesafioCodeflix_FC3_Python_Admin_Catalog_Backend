@@ -44,3 +44,25 @@ class TestDelete:
         repository.delete(category.id)
 
         assert len(repository.categories) == 0
+
+class TestUpdate:
+    def test_can_update_category(self):
+        repository = InMemoryCategoryRepository()
+        category = Category(
+            name="Filme", 
+            description="Categoria para filmes"
+        )
+        repository.save(category)
+
+        category.name = "Série"
+        category.description = "Categoria para séries"
+        category.activate()
+
+        repository.update(category)
+
+        updated_category = repository.get_by_id(category.id)
+        assert updated_category == category
+        assert updated_category.id == category.id
+        assert updated_category.name == "Série"
+        assert updated_category.description == "Categoria para séries"
+        assert updated_category.is_active == True
