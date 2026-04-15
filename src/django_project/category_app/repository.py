@@ -1,7 +1,7 @@
 import uuid
-from src.core.category.domain.category_repository import CategoryRepository
-from src.django_project.category_app.models import Category as CategoryModel
-from src.core.category.domain.category import Category
+from core.category.domain.category_repository import CategoryRepository
+from django_project.category_app.models import Category as CategoryModel
+from core.category.domain.category import Category
 from uuid import UUID
 
 class DjangoORMCategoryRepository(CategoryRepository):
@@ -41,3 +41,10 @@ class DjangoORMCategoryRepository(CategoryRepository):
             )
             for category in self.category_model.objects.all()   
         ]
+    
+    def update(self, category: Category) -> None:
+       self.model.objects.filter(pk=category.id).update(
+            name=category.name,
+            description=category.description,
+            is_active=category.is_active,
+        )

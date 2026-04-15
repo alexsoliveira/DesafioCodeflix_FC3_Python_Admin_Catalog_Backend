@@ -1,10 +1,10 @@
 import uuid
 import pytest
 from uuid import UUID
-from src.core.category.application.use_cases.exceptions import CategoryNotFound, InvalidCategoryData
-from src.core.category.domain.category import Category
-from src.core.category.infra.in_memory_category_repository import InMemoryCategoryRepository
-from src.core.category.application.use_cases.update_category import UpdateCategory, UpdateCategoryRequest
+from core.category.application.use_cases.exceptions import CategoryNotFound, InvalidCategoryData
+from core.category.domain.category import Category
+from core.category.infra.in_memory_category_repository import InMemoryCategoryRepository
+from core.category.application.use_cases.update_category import UpdateCategory, UpdateCategoryRequest
 
 class TestUpdateCategory:
     def test_can_update_category_name_and_description(self):

@@ -1,10 +1,10 @@
 import uuid
 from uuid import UUID
-from src.core.category.application.use_cases.delete_category import DeleteCategory, DeleteCategoryRequest
-from src.core.category.domain.category_repository import CategoryRepository
-from src.core.category.domain.category import Category
+from core.category.application.use_cases.delete_category import DeleteCategory, DeleteCategoryRequest
+from core.category.domain.category_repository import CategoryRepository
+from core.category.domain.category import Category
 from unittest.mock import create_autospec
-from src.core.category.application.use_cases.exceptions import CategoryNotFound
+from core.category.application.use_cases.exceptions import CategoryNotFound
 import pytest
 
 class TestDeleteCategory:

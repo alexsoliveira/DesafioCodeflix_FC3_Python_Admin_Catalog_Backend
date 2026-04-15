@@ -2,12 +2,12 @@ import pytest
 import uuid
 from uuid import UUID
 from unittest.mock import MagicMock
-from src.core.category.application.use_cases.get_category import GetCategory, GetCategoryRequest, GetCategoryResponse
-from src.core.category.application.use_cases.exceptions import InvalidCategoryData
-from src.core.category.domain.category_repository import CategoryRepository
-from src.core.category.domain.category import Category
+from core.category.application.use_cases.get_category import GetCategory, GetCategoryRequest, GetCategoryResponse
+from core.category.application.use_cases.exceptions import InvalidCategoryData
+from core.category.domain.category_repository import CategoryRepository
+from core.category.domain.category import Category
 from unittest.mock import create_autospec
-from src.core.category.application.use_cases.exceptions import CategoryNotFound
+from core.category.application.use_cases.exceptions import CategoryNotFound
 
 class TestGetCategory:
     def test_when_category_exists_then_return_response_dto(self):

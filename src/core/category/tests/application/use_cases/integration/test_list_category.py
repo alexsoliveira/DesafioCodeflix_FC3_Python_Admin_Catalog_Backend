@@ -1,8 +1,8 @@
 from unittest.mock import create_autospec
-from src.core.category.domain.category import Category
-from src.core.category.domain.category_repository import CategoryRepository
-from src.core.category.application.use_cases.list_category import ListCategory, ListCategoryRequest, ListCategoryResponse, CategoryOutput
-from src.core.category.infra.in_memory_category_repository import InMemoryCategoryRepository
+from core.category.domain.category import Category
+from core.category.domain.category_repository import CategoryRepository
+from core.category.application.use_cases.list_category import ListCategory, ListCategoryRequest, ListCategoryResponse, CategoryOutput
+from core.category.infra.in_memory_category_repository import InMemoryCategoryRepository
 
 class TestListCategory:
     def test_return_empty_list(self):
