@@ -1,9 +1,14 @@
 from django.test import TestCase
 from rest_framework.test import APITestCase
 from django_project.category_app.repository import DjangoORMCategoryRepository
+from django_project.category_app.models import Category as CategoryModel
 from core.category.domain.category import Category
 
 class TestCategoryAPI(APITestCase):
+    def setUp(self):
+        """Clean the database before each test."""
+        CategoryModel.objects.all().delete()
+
     def test_list_categories(self):
         category_movie=Category(
             name="Filme",
