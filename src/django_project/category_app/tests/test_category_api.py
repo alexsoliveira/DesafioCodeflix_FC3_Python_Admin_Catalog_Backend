@@ -1,23 +1,37 @@
 from django.test import TestCase
 from rest_framework.test import APITestCase
+from django_project.category_app.repository import DjangoORMCategoryRepository
+from core.category.domain.category import Category
 
 class TestCategoryAPI(APITestCase):
     def test_list_categories(self):
+        category_movie=Category(
+            name="Filme",
+            description="Categoria para filmes",
+        )
+        category_documentario=Category(
+            name="Documentário",
+            description="Categoria para documentários",
+        )
+        repository = DjangoORMCategoryRepository()
+        repository.save(category_movie)
+        repository.save(category_documentario)
+              
         url = "/api/categories/"
         response = self.client.get(url)
         
         expected_data = [
             {
-                "id": "9b1c9e5e-8c3a-4d9b-9f0a-1a2b3c4d5e6f",
-                "name": "Filme",
-                "description": "Categoria para filmes",
-                "is_active": True
+                "id": str(category_movie.id),
+                "name": category_movie.name,
+                "description": category_movie.description,
+                "is_active": category_movie.is_active
             },
             {
-                "id": "1a2b3c4d-5e6f-7g8h-9i0j-1k2l3m4n5o6p",
-                "name": "Série",
-                "description": "Categoria para séries",
-                "is_active": True
+                "id": str(category_documentario.id),
+                "name": category_documentario.name,
+                "description": category_documentario.description,
+                "is_active": category_documentario.is_active
             }
         ]
         self.assertEqual(response.status_code, 200) 
