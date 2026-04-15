@@ -2,7 +2,7 @@ import uuid
 from uuid import UUID
 from unittest.mock import create_autospec
 from src.core.category.application.use_cases.update_category import UpdateCategory, UpdateCategoryRequest
-from src.core.category.application.category_repository import CategoryRepository
+from src.core.category.domain.category_repository import CategoryRepository
 from src.core.category.domain.category import Category
 
 class TestUpdateCategory:

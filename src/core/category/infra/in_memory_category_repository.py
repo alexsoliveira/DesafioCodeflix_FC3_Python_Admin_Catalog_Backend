@@ -1,4 +1,4 @@
-from src.core.category.application.category_repository import CategoryRepository
+from src.core.category.domain.category_repository import CategoryRepository
 from src.core.category.domain.category import Category
 from uuid import UUID
 
