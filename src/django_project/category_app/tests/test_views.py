@@ -249,4 +249,66 @@ class TestDeleteAPI:
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert category_repository.get_by_id(category_movie.id) is None
         assert category_repository.list() == []
-       
+
+@pytest.mark.django_db
+class TestPartialUpdateAPI:
+    def test_when_payload_partial_exist_name(
+        self,
+        category_movie: Category,
+        category_repository: DjangoORMCategoryRepository
+    ):
+        category_repository.save(category_movie)
+        url = f'/api/categories/{category_movie.id}/'
+        response = APIClient().patch(
+            url,
+            data={
+                "name": "Filme",
+            }
+        )
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        updated_category = category_repository.get_by_id(category_movie.id)
+        assert updated_category.name == "Filme"
+        assert updated_category.description == category_movie.description
+        assert updated_category.is_active is True
+
+    def test_when_payload_partial_exist_description(
+        self,
+        category_movie: Category,
+        category_repository: DjangoORMCategoryRepository
+    ):
+        category_repository.save(category_movie)
+        url = f'/api/categories/{category_movie.id}/'
+        response = APIClient().patch(
+            url,
+            data={
+                "description": "Categoria para filmes",
+            }
+        )
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        updated_category = category_repository.get_by_id(category_movie.id)
+        assert updated_category.name == category_movie.name
+        assert updated_category.is_active is True
+        assert updated_category.description == "Categoria para filmes"
+
+    def test_when_payload_partial_exist_is_active(
+        self,
+        category_movie: Category,
+        category_repository: DjangoORMCategoryRepository
+    ):
+        category_repository.save(category_movie)
+        url = f'/api/categories/{category_movie.id}/'
+        response = APIClient().patch(
+            url,
+            data={
+                "is_active": False,
+            }
+        )
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        updated_category = category_repository.get_by_id(category_movie.id)
+        assert updated_category.name == category_movie.name
+        assert updated_category.description == category_movie.description
+        assert updated_category.is_active is False
+        

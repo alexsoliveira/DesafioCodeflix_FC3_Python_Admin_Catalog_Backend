@@ -1,8 +1,14 @@
 import pytest
 from rest_framework.test import APIClient
 
-@pytest.mark.django_db
+from django_project.category_app.models import Category as CategoryModel    
+
+@pytest.mark.django_db(transaction=True)
 class TestCreateAndEditCategory:
+    def setup_method(self):
+        """Clean the database before each test."""
+        CategoryModel.objects.all().delete()
+
     def test_user_can_create_and_edit_category(self) -> None:
         api_client = APIClient()
     
