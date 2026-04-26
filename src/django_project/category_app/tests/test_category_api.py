@@ -42,23 +42,40 @@ class TestCategoryAPI:
         url = '/api/categories/'
         response = APIClient().get(url)
 
-        expected_data = [
-            {
-                "id": str(category_movie.id),
-                "name": category_movie.name,
-                "description": category_movie.description,
-                "is_active": category_movie.is_active
-            },
-            {
-                "id": str(category_documentario.id),
-                "name": category_documentario.name,
-                "description": category_documentario.description,
-                "is_active": category_documentario.is_active
-            }
-        ]
+        # expected_data = [
+        #     {
+        #         "id": str(category_movie.id),
+        #         "name": category_movie.name,
+        #         "description": category_movie.description,
+        #         "is_active": category_movie.is_active
+        #     },
+        #     {
+        #         "id": str(category_documentario.id),
+        #         "name": category_documentario.name,
+        #         "description": category_documentario.description,
+        #         "is_active": category_documentario.is_active
+        #     }
+        # ]
+
+        expected_data = {
+            "data": [
+                {
+                    "id": str(category_movie.id),
+                    "name": category_movie.name,
+                    "description": category_movie.description,
+                    "is_active": category_movie.is_active
+                },
+                {
+                    "id": str(category_documentario.id),
+                    "name": category_documentario.name,
+                    "description": category_documentario.description,
+                    "is_active": category_documentario.is_active
+                }
+            ]
+        }
 
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 2
+        assert len(response.data["data"]) == 2
         assert response.data == expected_data
 
 @pytest.mark.django_db
@@ -82,12 +99,21 @@ class TestRestrieveAPI:
         url = f'/api/categories/{category_documentario.id}/'
         response = APIClient().get(url)
 
+        # expected_data = {
+        #     "id": str(category_documentario.id),
+        #     "name": category_documentario.name,
+        #     "description": category_documentario.description,
+        #     "is_active": category_documentario.is_active
+        # }
+
         expected_data = {
-            "id": str(category_documentario.id),
-            "name": category_documentario.name,
-            "description": category_documentario.description,
-            "is_active": category_documentario.is_active
-        }
+            "data": {
+                "id": str(category_documentario.id),
+                "name": category_documentario.name,
+                "description": category_documentario.description,
+                "is_active": category_documentario.is_active
+            }
+        } 
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data == expected_data
