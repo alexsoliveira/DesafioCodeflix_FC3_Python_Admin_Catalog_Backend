@@ -1,30 +1,44 @@
-from django.test import TestCase
-from rest_framework.test import APITestCase
+from rest_framework import status
 from django_project.category_app.repository import DjangoORMCategoryRepository
 from django_project.category_app.models import Category as CategoryModel
 from core.category.domain.category import Category
+import pytest
+from rest_framework.test import APIClient
+from uuid import uuid4
+import uuid
 
-class TestCategoryAPI(APITestCase):
-    def setUp(self):
-        """Clean the database before each test."""
-        CategoryModel.objects.all().delete()
+@pytest.fixture
+def category_movie():
+    return Category(
+        name="Filme",
+        description="Categoria para filmes",
+    )
 
-    def test_list_categories(self):
-        category_movie=Category(
-            name="Filme",
-            description="Categoria para filmes",
-        )
-        category_documentario=Category(
-            name="Documentário",
-            description="Categoria para documentários",
-        )
-        repository = DjangoORMCategoryRepository()
-        repository.save(category_movie)
-        repository.save(category_documentario)
-              
-        url = "/api/categories/"
-        response = self.client.get(url)
-        
+@pytest.fixture
+def category_documentario():
+    return Category(
+        name="Documentário",
+        description="Categoria para documentários",
+    )
+
+@pytest.fixture
+def category_repository() -> DjangoORMCategoryRepository:
+    return DjangoORMCategoryRepository()
+
+@pytest.mark.django_db
+class TestCategoryAPI:
+    def test_list_categories(
+        self,
+        category_movie: Category,
+        category_documentario: Category,
+        category_repository: DjangoORMCategoryRepository
+    ) -> None:
+        category_repository.save(category_movie)
+        category_repository.save(category_documentario)
+
+        url = '/api/categories/'
+        response = APIClient().get(url)
+
         expected_data = [
             {
                 "id": str(category_movie.id),
@@ -39,6 +53,48 @@ class TestCategoryAPI(APITestCase):
                 "is_active": category_documentario.is_active
             }
         ]
-        self.assertEqual(response.status_code, 200) 
-        self.assertEqual(response.data, expected_data)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) == 2
+        assert response.data == expected_data
+
+@pytest.mark.django_db
+class TestRestrieveAPI:
+    def test_when_id_is_invalid_return_400(self) -> None:
+        url = '/api/categories/123123123/'
+        response = APIClient().get(url)
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        
+
+    def test_return_category_when_exists(
+        self,
+        category_movie: Category,
+        category_documentario: Category,
+        category_repository: DjangoORMCategoryRepository
+    ) -> None:
+        category_repository.save(category_movie)
+        category_repository.save(category_documentario)
+
+        url = f'/api/categories/{category_documentario.id}/'
+        response = APIClient().get(url)
+
+        expected_data = {
+            "id": str(category_documentario.id),
+            "name": category_documentario.name,
+            "description": category_documentario.description,
+            "is_active": category_documentario.is_active
+        }
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == expected_data
+
+    def test_return_404_when_not_exists(self) -> None:
+        url = f'/api/categories/{uuid.uuid4()}/'
+        response = APIClient().get(url)
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        
+
+        
 
