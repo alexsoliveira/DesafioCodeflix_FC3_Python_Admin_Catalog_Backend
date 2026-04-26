@@ -5,6 +5,7 @@ from rest_framework.request import Request
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST, 
     HTTP_200_OK,
+    HTTP_201_CREATED,
     HTTP_404_NOT_FOUND
 )
 from uuid import UUID
@@ -21,7 +22,13 @@ from core.category.application.use_cases.get_category import (
 from .serializers import (
     ListCategoryResponseSerializer,
     RetrieveCategoryRequestSerializer,
-    RetrieveCategoryResponseSerializer
+    RetrieveCategoryResponseSerializer,
+    CreateCategoryRequestSerializer,
+    CreateCategoryResponseSerializer
+)
+from core.category.application.use_cases.create_category import (
+    CreateCategory, 
+    CreateCategoryRequest
 )
 
 class CategoryViewSet(viewsets.ViewSet):
@@ -50,4 +57,17 @@ class CategoryViewSet(viewsets.ViewSet):
         return Response(
             status=HTTP_200_OK, 
             data=category_output.data
+        )
+    
+    def create(self, request: Request) -> Response:
+        serializer = CreateCategoryRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        input = CreateCategoryRequest(**serializer.validated_data)
+        use_case = CreateCategory(repository=DjangoORMCategoryRepository())
+        output = use_case.execute(request=input)
+
+        return Response(
+            status=HTTP_201_CREATED, 
+            data=CreateCategoryResponseSerializer(instance=output).data
         )

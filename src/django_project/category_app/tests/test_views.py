@@ -29,7 +29,7 @@ def category_repository() -> DjangoORMCategoryRepository:
     return DjangoORMCategoryRepository()
 
 @pytest.mark.django_db
-class TestCategoryAPI:
+class TestListAPI:
     def test_list_categories(
         self,
         category_movie: Category,
@@ -124,6 +124,43 @@ class TestRestrieveAPI:
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
         
+@pytest.mark.django_db
+class TestCreateAPI:
+    def test_when_payloadis_invalid_return_400(self) -> None:
+        url = '/api/categories/'
+        response = APIClient().post(
+            url,
+            data={
+                "name": "",
+                "description": "Categoria para filmes",
+            }
+        )
 
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
         
+    def test_when_payload_is_valid_then_create_category_and_return_201(
+        self,
+        category_repository: DjangoORMCategoryRepository,
+    ) -> None:
+        url = '/api/categories/'
+        response = APIClient().post(
+            url,
+            data={
+                "name": "Filme",
+                "description": "Categoria para filmes",
+            }
+        )
 
+        assert response.status_code == status.HTTP_201_CREATED
+        created_category_id = uuid.UUID(response.data["id"])
+        assert category_repository.get_by_id(created_category_id) == Category(
+            id=created_category_id,
+            name="Filme",
+            description="Categoria para filmes",
+        )
+        assert category_repository.list() == [Category(
+            id=created_category_id,
+            name="Filme",
+            description="Categoria para filmes",
+        )]
+    
