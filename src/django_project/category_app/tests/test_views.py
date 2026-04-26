@@ -166,7 +166,8 @@ class TestCreateAPI:
             name="Filme",
             description="Categoria para filmes",
         )]
-    
+        
+@pytest.mark.django_db
 class TestUpdateAPI:
     def test_when_payload_is_invalid_then_return_400(self) -> None:
         url = '/api/categories/123123123/'
