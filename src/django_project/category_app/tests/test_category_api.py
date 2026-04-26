@@ -23,6 +23,9 @@ def category_documentario():
 
 @pytest.fixture
 def category_repository() -> DjangoORMCategoryRepository:
+    """Create repository and clean database before test."""
+    from django_project.category_app.models import Category
+    Category.objects.all().delete()
     return DjangoORMCategoryRepository()
 
 @pytest.mark.django_db
