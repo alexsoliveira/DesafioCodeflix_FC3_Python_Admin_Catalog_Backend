@@ -26,7 +26,8 @@ from .serializers import (
     RetrieveCategoryResponseSerializer,
     CreateCategoryRequestSerializer,
     CreateCategoryResponseSerializer,
-    UpdateCategoryRequestSerializer
+    UpdateCategoryRequestSerializer,
+    DeleteCategoryRequestSerializer
 )
 from core.category.application.use_cases.create_category import (
     CreateCategory, 
@@ -35,6 +36,10 @@ from core.category.application.use_cases.create_category import (
 from core.category.application.use_cases.update_category import (
     UpdateCategory, 
     UpdateCategoryRequest
+)
+from core.category.application.use_cases.delete_category import (
+    DeleteCategory, 
+    DeleteCategoryRequest
 )
 
 class CategoryViewSet(viewsets.ViewSet):
@@ -96,3 +101,16 @@ class CategoryViewSet(viewsets.ViewSet):
         
 
         return Response(status=HTTP_204_NO_CONTENT)
+    
+    def destroy(self, request: Request, pk=None) -> Response:
+        serializer = DeleteCategoryRequestSerializer(data={"id": pk})
+        serializer.is_valid(raise_exception=True)
+
+        use_case = DeleteCategory(repository=DjangoORMCategoryRepository())
+
+        try:
+            use_case.execute(request=DeleteCategoryRequest(id=serializer.validated_data["id"]))
+        except CategoryNotFound:
+            return Response(status=HTTP_404_NOT_FOUND)
+
+        return Response(status=HTTP_204_NO_CONTENT) 
