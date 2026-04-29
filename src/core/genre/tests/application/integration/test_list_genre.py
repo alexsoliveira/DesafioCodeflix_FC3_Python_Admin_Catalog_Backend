@@ -37,3 +37,10 @@ class TestListGenre:
         )
 
     # Criar um novo teste, quando não tenha nenhum gênero registrado. Então um repositorio vazio.
+    def test_list_genres_with_no_genres_registered(self):
+        genre_repository = InMemoryGenreRepository()
+        use_case = ListGenre(repository=genre_repository)
+        output = use_case.execute(input=ListGenre.Input())
+
+        assert len(output.data) == 0
+        assert output == ListGenre.Output(data=[])
