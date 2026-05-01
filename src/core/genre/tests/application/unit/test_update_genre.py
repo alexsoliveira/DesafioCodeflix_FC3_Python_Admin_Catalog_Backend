@@ -21,9 +21,13 @@ def documentary_category() -> Category:
     return Category(name="Documentary")
 
 @pytest.fixture
-def mock_category_repository_with_categories(movie_category, documentary_category) -> CategoryRepository:
+def series_category() -> Category:
+    return Category(name="Series")
+
+@pytest.fixture
+def mock_category_repository_with_categories(movie_category, documentary_category, series_category) -> CategoryRepository:
     repository = create_autospec(CategoryRepository)
-    repository.list.return_value = [movie_category, documentary_category]
+    repository.list.return_value = [movie_category, documentary_category, series_category]
     return repository
 
 @pytest.fixture
@@ -87,14 +91,14 @@ class TestUpdateGenre:
     def test_when_genre_category_ids_not_exist_then_raise_related_categories_not_found_exception(
         self,
         mock_genre_repository,
-        mock_empty_category_repository
+        mock_category_repository_with_categories
     ):
         genre = Genre(name="Original Genre Name")
         mock_genre_repository.get_by_id.return_value = genre
 
         use_case = UpdateGenre(
             repository=mock_genre_repository, 
-            category_repository=mock_empty_category_repository
+            category_repository=mock_category_repository_with_categories
         )
 
         with pytest.raises(RelatedCategoriesNotFound, match="Categories not found: {.*}"):
