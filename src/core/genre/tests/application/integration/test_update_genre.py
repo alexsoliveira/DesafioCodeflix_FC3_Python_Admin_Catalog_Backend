@@ -18,9 +18,13 @@ def documentary_category() -> Category:
     return Category(name="Documentary")
 
 @pytest.fixture
-def category_repository(movie_category, documentary_category) -> CategoryRepository:
+def series_category() -> Category:
+    return Category(name="Series")
+
+@pytest.fixture
+def category_repository(movie_category, documentary_category, series_category) -> CategoryRepository:
     return InMemoryCategoryRepository(
-        categories=[movie_category, documentary_category]
+        categories=[movie_category, documentary_category, series_category]
     )
 
 class TestUpdateGenre:
@@ -110,8 +114,21 @@ class TestUpdateGenre:
         category_repository
     ):
         genre_repository = InMemoryGenreRepository()
-        genre = Genre(name="Original Genre Name")
+        movie_category, documentary_category, series_category = category_repository.list()
+        genre = Genre(
+            name="Original Genre Name",
+            is_active=False,
+            categories={
+                movie_category.id,
+                documentary_category.id,
+                series_category.id,
+            },
+        )
         genre_repository.save(genre)
+        updated_category_ids = {
+            movie_category.id,
+            documentary_category.id,
+        }
 
         use_case = UpdateGenre(
             repository=genre_repository, 
@@ -121,15 +138,13 @@ class TestUpdateGenre:
         use_case.execute(request=UpdateGenre.Input(
             id=genre.id,
             name="Updated Genre Name",
-            category_ids={
-                category.id
-                for category in category_repository.list()
-            },
+            category_ids=updated_category_ids,
             is_active=True
         ))
 
         assert len(genre_repository.list()) == 1
         updated_genre = genre_repository.list()[0]
         assert updated_genre.name == "Updated Genre Name"
-        assert updated_genre.is_active == True
-        assert len(updated_genre.categories) == 2
+        assert updated_genre.is_active is True
+        assert updated_genre.categories == updated_category_ids
+        assert series_category.id not in updated_genre.categories

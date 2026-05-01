@@ -120,8 +120,23 @@ class TestUpdateGenre:
         mock_genre_repository,
         mock_category_repository_with_categories
     ):
-        genre = Genre(name="Original Genre Name")
+        movie_category, documentary_category, series_category = (
+            mock_category_repository_with_categories.list.return_value
+        )
+        genre = Genre(
+            name="Original Genre Name",
+            is_active=False,
+            categories={
+                movie_category.id,
+                documentary_category.id,
+                series_category.id,
+            },
+        )
         mock_genre_repository.get_by_id.return_value = genre
+        updated_category_ids = {
+            movie_category.id,
+            documentary_category.id,
+        }
 
         use_case = UpdateGenre(
             repository=mock_genre_repository, 
@@ -131,13 +146,16 @@ class TestUpdateGenre:
         use_case.execute(request=UpdateGenre.Input(
             id=genre.id,
             name="Updated Genre Name",
-            category_ids={
-                category.id
-                for category in mock_category_repository_with_categories.list.return_value
-            },
+            category_ids=updated_category_ids,
             is_active=True
         ))
 
         mock_genre_repository.update.assert_called_once()
+        updated_genre = mock_genre_repository.update.call_args.args[0]
+        assert updated_genre.id == genre.id
+        assert updated_genre.name == "Updated Genre Name"
+        assert updated_genre.is_active is True
+        assert updated_genre.categories == updated_category_ids
+        assert series_category.id not in updated_genre.categories
 
     
