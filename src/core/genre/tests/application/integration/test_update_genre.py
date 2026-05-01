@@ -1,16 +1,13 @@
 from unittest.mock import create_autospec
 import pytest
-from core.genre.domain.genre_repository import GenreRepository
 from core.category.domain.category import Category
 from core.category.domain.category_repository import CategoryRepository
 from core.genre.application.exceptions import GenreNotFound, InvalidGenre, RelatedCategoriesNotFound
 import uuid
 from core.genre.application.use_cases.update_genre import UpdateGenre
 from core.genre.domain.genre import Genre
-
-@pytest.fixture
-def mock_genre_repository() -> GenreRepository:
-    return create_autospec(GenreRepository)
+from core.genre.infra.in_memory_genre_repository import InMemoryGenreRepository
+from core.category.infra.in_memory_category_repository import InMemoryCategoryRepository
 
 @pytest.fixture
 def movie_category() -> Category:
@@ -21,55 +18,48 @@ def documentary_category() -> Category:
     return Category(name="Documentary")
 
 @pytest.fixture
-def mock_category_repository_with_categories(movie_category, documentary_category) -> CategoryRepository:
-    repository = create_autospec(CategoryRepository)
-    repository.list.return_value = [movie_category, documentary_category]
-    return repository
-
-@pytest.fixture
-def mock_empty_category_repository() -> CategoryRepository:
-    repository = create_autospec(CategoryRepository)
-    repository.list.return_value = []
-    return repository
+def category_repository(movie_category, documentary_category) -> CategoryRepository:
+    return InMemoryCategoryRepository(
+        categories=[movie_category, documentary_category]
+    )
 
 class TestUpdateGenre:
     # 1. Gênero não encontrado:
     # Tentar atualizar um Genre que não existe deve retornar uma exceção GenreNotFound.
     def test_when_genre_not_exist_then_raise_not_found_exception(
         self,
-        mock_genre_repository,
-        mock_empty_category_repository
+        category_repository,
     ):
-        mock_genre_repository.get_by_id.return_value = None
+        genre_repository = InMemoryGenreRepository()
 
         use_case = UpdateGenre(
-            repository=mock_genre_repository, 
-            category_repository=mock_empty_category_repository
+            repository=genre_repository, 
+            category_repository=category_repository
         )
+        not_found_id = uuid.uuid4()
 
         with pytest.raises(GenreNotFound, match="Genre with id .* not found"):
             use_case.execute(request=UpdateGenre.Input(
-                id=uuid.uuid4(),
+                id=not_found_id,
                 name="New Genre Name",
                 category_ids=set(),
                 is_active=True
             ))
-
-        mock_genre_repository.update.assert_not_called()
+        
 
     # 2. Atributos inválidos:
     # Tentar atualizar um Genre passando dados inválidos (ex: nome vazio) deve retornar uma exceção InvalidGenre.
     def test_when_genre_data_is_invalid_then_raise_invalid_genre_exception(
         self,
-        mock_genre_repository,
-        mock_empty_category_repository
+        category_repository
     ):
+        genre_repository = InMemoryGenreRepository()
         genre = Genre(name="Original Genre Name")
-        mock_genre_repository.get_by_id.return_value = genre
-
+        genre_repository.save(genre)
+        
         use_case = UpdateGenre(
-            repository=mock_genre_repository, 
-            category_repository=mock_empty_category_repository
+            repository=genre_repository, 
+            category_repository=category_repository
         )
 
         with pytest.raises(InvalidGenre, match="name cannot be empty"):
@@ -79,22 +69,24 @@ class TestUpdateGenre:
                 category_ids=set(),
                 is_active=True
             ))
-
-        mock_genre_repository.update.assert_not_called()
+        
+        assert len(genre_repository.list()) == 1
+        existing_genre = genre_repository.list()[0]
+        assert existing_genre.name == "Original Genre Name"
 
     # 3. Categorias vinculadas inexistentes:
     # Tentar atualizar um Genre vinculando IDs de categorias que não existem no banco deve retornar uma exceção RelatedCategoriesNotFound.
     def test_when_genre_category_ids_not_exist_then_raise_related_categories_not_found_exception(
         self,
-        mock_genre_repository,
-        mock_empty_category_repository
+        category_repository,
     ):
+        genre_repository = InMemoryGenreRepository()
         genre = Genre(name="Original Genre Name")
-        mock_genre_repository.get_by_id.return_value = genre
+        genre_repository.save(genre)
 
         use_case = UpdateGenre(
-            repository=mock_genre_repository, 
-            category_repository=mock_empty_category_repository
+            repository=genre_repository, 
+            category_repository=category_repository
         )
 
         with pytest.raises(RelatedCategoriesNotFound, match="Categories not found: {.*}"):
@@ -104,8 +96,10 @@ class TestUpdateGenre:
                 category_ids={uuid.uuid4(), uuid.uuid4()},
                 is_active=True
             ))
-
-        mock_genre_repository.update.assert_not_called()
+        
+        assert len(genre_repository.list()) == 1
+        existing_genre = genre_repository.list()[0]
+        assert existing_genre.name == "Original Genre Name"
 
     # 4. Atualização com sucesso (Happy Path):
     # Atualizar um Genre com dados válidos e categorias existentes deve persistir as alterações corretamente.
@@ -113,15 +107,15 @@ class TestUpdateGenre:
     # Certifique-se de incluir a validação de atributos como name e is_active neste teste.
     def test_when_update_genre_with_valid_data_then_update_successfully(
         self,
-        mock_genre_repository,
-        mock_category_repository_with_categories
+        category_repository
     ):
+        genre_repository = InMemoryGenreRepository()
         genre = Genre(name="Original Genre Name")
-        mock_genre_repository.get_by_id.return_value = genre
+        genre_repository.save(genre)
 
         use_case = UpdateGenre(
-            repository=mock_genre_repository, 
-            category_repository=mock_category_repository_with_categories
+            repository=genre_repository, 
+            category_repository=category_repository
         )
 
         use_case.execute(request=UpdateGenre.Input(
@@ -129,11 +123,13 @@ class TestUpdateGenre:
             name="Updated Genre Name",
             category_ids={
                 category.id
-                for category in mock_category_repository_with_categories.list.return_value
+                for category in category_repository.list()
             },
             is_active=True
         ))
 
-        mock_genre_repository.update.assert_called_once()
-
-    
+        assert len(genre_repository.list()) == 1
+        updated_genre = genre_repository.list()[0]
+        assert updated_genre.name == "Updated Genre Name"
+        assert updated_genre.is_active == True
+        assert len(updated_genre.categories) == 2

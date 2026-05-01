@@ -6,3 +6,6 @@ class InvalidGenre(Exception):
 
 class GenreNotFound(Exception):
     pass
+
+class InvalidGenre(Exception):
+    pass
