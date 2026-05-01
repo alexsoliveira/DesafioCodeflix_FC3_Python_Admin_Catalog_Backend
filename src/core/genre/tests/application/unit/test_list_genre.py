@@ -1,13 +1,13 @@
 from unittest.mock import create_autospec
 import pytest
-from core.genre.domain.genre_repository import GenreRepository
-from core.category.domain.category import Category
-from core.category.domain.category_repository import CategoryRepository
-from core.genre.application.use_cases.create_genre import CreateGenre
-from core.genre.application.exceptions import RelatedCategoriesNotFound, InvalidGenre
+from src.core.genre.domain.genre_repository import GenreRepository
+from src.core.category.domain.category import Category
+from src.core.category.domain.category_repository import CategoryRepository
+from src.core.genre.application.use_cases.create_genre import CreateGenre
+from src.core.genre.application.exceptions import RelatedCategoriesNotFound, InvalidGenre
 import uuid
-from core.genre.domain.genre import Genre
-from core.genre.application.use_cases.list_genre import ListGenre, GenreOutput
+from src.core.genre.domain.genre import Genre
+from src.core.genre.application.use_cases.list_genre import ListGenre, GenreOutput
 
 @pytest.fixture
 def mock_genre_repository() -> GenreRepository:

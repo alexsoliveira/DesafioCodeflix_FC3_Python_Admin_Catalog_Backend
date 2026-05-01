@@ -1,10 +1,10 @@
 from unittest.mock import create_autospec
 import pytest
-from core.genre.application.use_cases.delete_genre import DeleteGenre
-from core.genre.infra.in_memory_genre_repository import InMemoryGenreRepository
-from core.genre.domain.genre import Genre
+from src.core.genre.application.use_cases.delete_genre import DeleteGenre
+from src.core.genre.infra.in_memory_genre_repository import InMemoryGenreRepository
+from src.core.genre.domain.genre import Genre
 import uuid
-from core.genre.application.exceptions import GenreNotFound
+from src.core.genre.application.exceptions import GenreNotFound
 
 class TestDeleteGenre:
     def test_delete_genre_from_repository(self):

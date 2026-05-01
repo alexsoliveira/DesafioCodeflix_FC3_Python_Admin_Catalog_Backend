@@ -1,13 +1,13 @@
 from unittest.mock import create_autospec
 import pytest
-from core.category.domain.category import Category
-from core.category.domain.category_repository import CategoryRepository
-from core.genre.application.exceptions import GenreNotFound, InvalidGenre, RelatedCategoriesNotFound
+from src.core.category.domain.category import Category
+from src.core.category.domain.category_repository import CategoryRepository
+from src.core.genre.application.exceptions import GenreNotFound, InvalidGenre, RelatedCategoriesNotFound
 import uuid
-from core.genre.application.use_cases.update_genre import UpdateGenre
-from core.genre.domain.genre import Genre
-from core.genre.infra.in_memory_genre_repository import InMemoryGenreRepository
-from core.category.infra.in_memory_category_repository import InMemoryCategoryRepository
+from src.core.genre.application.use_cases.update_genre import UpdateGenre
+from src.core.genre.domain.genre import Genre
+from src.core.genre.infra.in_memory_genre_repository import InMemoryGenreRepository
+from src.core.category.infra.in_memory_category_repository import InMemoryCategoryRepository
 
 @pytest.fixture
 def movie_category() -> Category:

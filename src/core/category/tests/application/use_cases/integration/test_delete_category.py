@@ -2,10 +2,10 @@ import pytest
 import uuid
 from uuid import UUID
 from unittest.mock import MagicMock
-from core.category.application.use_cases.delete_category import DeleteCategory, DeleteCategoryRequest
-from core.category.application.use_cases.exceptions import InvalidCategoryData, CategoryNotFound
-from core.category.infra.in_memory_category_repository import InMemoryCategoryRepository
-from core.category.domain.category import Category
+from src.core.category.application.use_cases.delete_category import DeleteCategory, DeleteCategoryRequest
+from src.core.category.application.use_cases.exceptions import InvalidCategoryData, CategoryNotFound
+from src.core.category.infra.in_memory_category_repository import InMemoryCategoryRepository
+from src.core.category.domain.category import Category
 
 class TestDeleteCategory:
     def test_delete_category_from_repository(self):

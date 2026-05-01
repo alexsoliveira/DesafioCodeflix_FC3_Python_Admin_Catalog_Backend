@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from uuid import UUID
-from core.genre.application.exceptions import RelatedCategoriesNotFound, InvalidGenre
-from core.genre.domain.genre import Genre
+from src.core.genre.application.exceptions import RelatedCategoriesNotFound, InvalidGenre
+from src.core.genre.domain.genre import Genre
 
 class CreateGenre:
     def __init__(self, repository, category_repository):

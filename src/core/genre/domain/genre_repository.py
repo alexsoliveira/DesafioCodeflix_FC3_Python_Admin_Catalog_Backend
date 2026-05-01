@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from uuid import UUID
 
-from core.genre.domain.genre import Genre
+from src.core.genre.domain.genre import Genre
 
 class GenreRepository(ABC):
     @abstractmethod

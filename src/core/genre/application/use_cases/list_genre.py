@@ -1,4 +1,4 @@
-from core.genre.domain.genre_repository import GenreRepository
+from src.core.genre.domain.genre_repository import GenreRepository
 from dataclasses import dataclass
 from uuid import UUID
 

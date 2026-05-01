@@ -3,7 +3,7 @@ import uuid
 import pytest
 from uuid import UUID
 
-from core.genre.domain.genre import Genre
+from src.core.genre.domain.genre import Genre
 
 class TestGenre:
     def test_name_is_required(self):

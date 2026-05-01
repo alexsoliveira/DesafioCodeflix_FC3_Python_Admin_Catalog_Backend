@@ -1,5 +1,5 @@
-from core.genre.domain.genre_repository import GenreRepository
-from core.genre.domain.genre import Genre
+from src.core.genre.domain.genre_repository import GenreRepository
+from src.core.genre.domain.genre import Genre
 from uuid import UUID
 
 class InMemoryGenreRepository(GenreRepository):
