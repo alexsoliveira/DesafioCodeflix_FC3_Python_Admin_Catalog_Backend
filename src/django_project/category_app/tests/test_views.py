@@ -1,7 +1,7 @@
 from rest_framework import status
-from django_project.category_app.repository import DjangoORMCategoryRepository
-from django_project.category_app.models import Category as CategoryModel
-from core.category.domain.category import Category
+from src.django_project.category_app.repository import DjangoORMCategoryRepository
+from src.django_project.category_app.models import Category as CategoryModel
+from src.core.category.domain.category import Category
 import pytest
 from rest_framework.test import APIClient
 from uuid import uuid4
@@ -24,8 +24,7 @@ def category_documentario():
 @pytest.fixture
 def category_repository() -> DjangoORMCategoryRepository:
     """Create repository and clean database before test."""
-    from django_project.category_app.models import Category
-    Category.objects.all().delete()
+    CategoryModel.objects.all().delete()
     return DjangoORMCategoryRepository()
 
 @pytest.mark.django_db

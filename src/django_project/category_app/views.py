@@ -11,13 +11,13 @@ from rest_framework.status import (
 )
 from uuid import UUID
 from core.category.application.use_cases.list_category import (
-    ListCategory, 
+    ListCategory,
     ListCategoryRequest,
 )
 from core.category.application.use_cases.exceptions import CategoryNotFound
-from django_project.category_app.repository import DjangoORMCategoryRepository
+from src.django_project.category_app.repository import DjangoORMCategoryRepository
 from core.category.application.use_cases.get_category import (
-    GetCategory, 
+    GetCategory,
     GetCategoryRequest
 )
 from .serializers import (
@@ -30,15 +30,15 @@ from .serializers import (
     DeleteCategoryRequestSerializer
 )
 from core.category.application.use_cases.create_category import (
-    CreateCategory, 
+    CreateCategory,
     CreateCategoryRequest
 )
 from core.category.application.use_cases.update_category import (
-    UpdateCategory, 
+    UpdateCategory,
     UpdateCategoryRequest
 )
 from core.category.application.use_cases.delete_category import (
-    DeleteCategory, 
+    DeleteCategory,
     DeleteCategoryRequest
 )
 

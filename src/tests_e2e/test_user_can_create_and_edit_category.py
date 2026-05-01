@@ -1,7 +1,7 @@
 import pytest
 from rest_framework.test import APIClient
 
-from django_project.category_app.models import Category as CategoryModel    
+from src.django_project.category_app.models import Category as CategoryModel
 
 @pytest.mark.django_db(transaction=True)
 class TestCreateAndEditCategory:

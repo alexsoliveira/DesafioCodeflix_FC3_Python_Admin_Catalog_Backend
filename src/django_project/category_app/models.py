@@ -10,6 +10,7 @@ class Category(models.Model):
 
     class Meta:
         db_table = 'category'
+        app_label = 'category_app'
 
     def __str__(self):
         return self.name
