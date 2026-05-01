@@ -1,4 +1,3 @@
-import uuid
 from uuid import UUID
 from dataclasses import dataclass, field
 from core.genre.domain.genre import Genre
@@ -22,11 +21,6 @@ class UpdateGenre:
         if genre is None:
             raise GenreNotFound(f"Genre with id {request.id} not found")
 
-        current_name = genre.name
-
-        if request.name is not None:
-            current_name = request.name
-        
         category_ids = {category.id for category in self.category_repository.list() }
         if not request.category_ids.issubset(category_ids):
             raise RelatedCategoriesNotFound(
