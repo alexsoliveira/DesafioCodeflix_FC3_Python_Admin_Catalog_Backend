@@ -157,3 +157,25 @@ class TestCreateAPI:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert "Categories not found" in response.data["error"]
         assert str(category_id) in response.data["error"]
+
+@pytest.mark.django_db
+class TestDeleteAPI:
+    def test_when_genre_does_not_exist_then_raise_404(self):
+        url = f"/api/genres/{uuid.uuid4()}/"
+        response = APIClient().delete(url)
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_when_pk_is_invalid_then_raise_400(self):
+        url = f"/api/genres/123123123/"
+        response = APIClient().delete(url)
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_delete_genre_from_repository(self, genre_romance, genre_repository):
+        genre_repository.save(genre_romance)
+
+        url = f"/api/genres/{genre_romance.id}/"
+        response = APIClient().delete(url)
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
