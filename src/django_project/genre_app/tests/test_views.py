@@ -6,6 +6,7 @@ from src.core.genre.domain.genre import Genre
 from src.django_project.category_app.repository import DjangoORMCategoryRepository
 from src.django_project.genre_app.repository import DjangoORMGenreRepository
 from rest_framework import status
+import uuid
 
 @pytest.fixture
 def category_movie():
@@ -131,4 +132,28 @@ class TestCreateAPI:
             category_documentario.id
         }
 
- 
+    def test_when_payload_is_invalid_then_return_400(self):
+        url = "/api/genres/"
+        data = {
+            "name": "",
+            "categories": [],
+        }
+        response = APIClient().post(url, data)
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data == {
+            "name": ["This field may not be blank."]
+        }
+
+    def test_when_categories_do_not_exist_then_return_400(self):
+        url = "/api/genres/"
+        category_id = uuid.uuid4()
+        data = {
+            "name": "Drama",
+            "categories": [str(category_id)],
+        }
+        response = APIClient().post(url, data)
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "Categories not found" in response.data["error"]
+        assert str(category_id) in response.data["error"]
