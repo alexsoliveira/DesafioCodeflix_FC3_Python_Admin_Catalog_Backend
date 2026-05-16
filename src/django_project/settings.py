@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import importlib.util
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -38,11 +39,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'django_extensions',
     'src.django_project.category_app',
     'src.django_project.genre_app',
     'src.django_project.cast_member_app',
 ]
+
+if importlib.util.find_spec("django_extensions") is not None:
+    INSTALLED_APPS.append('django_extensions')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
