@@ -179,3 +179,86 @@ class TestDeleteAPI:
         response = APIClient().delete(url)
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
+
+@pytest.mark.django_db
+class TestUpdateAPI:
+    def test_when_request_data_is_valid_then_update_genre(
+        self,
+        genre_romance,
+        genre_repository,
+        category_movie,
+        category_repository,
+    ):
+        genre_repository.save(genre_romance)
+
+        url = f"/api/genres/{genre_romance.id}/"
+        response = APIClient().put(
+            url,
+            data={
+                "name": "Updated Romance",
+                "categories": [str(category_movie.id)],
+                "is_active": False,
+            }
+        )
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        updated_genre = genre_repository.get_by_id(genre_romance.id)
+        assert updated_genre.name == "Updated Romance"
+        assert updated_genre.categories == {category_movie.id}
+        assert updated_genre.is_active is False
+
+    def test_when_request_data_is_invalid_then_return_400(self):
+        url = "/api/genres/123123123/"
+        response = APIClient().put(
+            url,
+            data={
+                "name": "",
+                "categories": [],
+                "is_active": True,
+            }
+        )
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data == {
+            "id": ["Must be a valid UUID."],
+            "name": ["This field may not be blank."],
+        }
+
+    def test_when_related_categories_do_not_exist_then_return_400(
+        self,
+        genre_drama,
+        genre_repository,
+    ):
+        genre_repository.save(genre_drama)
+        category_id = uuid.uuid4()
+
+        url = f"/api/genres/{genre_drama.id}/"
+        response = APIClient().put(
+            url,
+            data={
+                "name": "Updated Drama",
+                "categories": [str(category_id)],
+                "is_active": True,
+            }
+        )
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "Categories not found" in response.data["error"]
+        assert str(category_id) in response.data["error"]
+
+    def test_when_genre_does_not_exist_then_return_404(
+        self,
+        category_movie,
+        category_repository,
+    ):
+        url = f"/api/genres/{uuid.uuid4()}/"
+        response = APIClient().put(
+            url,
+            data={
+                "name": "Updated Drama",
+                "categories": [str(category_movie.id)],
+                "is_active": True,
+            }
+        )
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
