@@ -101,5 +101,34 @@ class TestListAPI:
         assert response.data["data"][1]["is_active"] == True
         assert response.data["data"][1]["categories"] == [] 
         
+@pytest.mark.django_db
+class TestCreateAPI:
+    def test_create_genre_with_associated_categories(
+        self, 
+        genre_repository,
+        category_movie,
+        category_documentario,
+        category_repository,
+    ):
+        url = "/api/genres/"
+        data = {
+            "name": "Drama",
+            "categories": [
+                str(category_movie.id), 
+                str(category_documentario.id)
+            ],
+        }
+        response = APIClient().post(url, data)
+
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data["id"]
+        created_genre_id = response.data["id"]
+
+        saved_genre = genre_repository.get_by_id(created_genre_id)
+        assert saved_genre.name == "Drama"
+        assert saved_genre.categories == {
+            category_movie.id, 
+            category_documentario.id
+        }
 
  

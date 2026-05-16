@@ -10,8 +10,13 @@ from rest_framework.status import (
     HTTP_204_NO_CONTENT
 )
 from src.django_project.genre_app.repository import DjangoORMGenreRepository
+from src.django_project.category_app.repository import DjangoORMCategoryRepository
 from src.django_project.genre_app.serializers import ListGenreOutputSerializer
 from src.core.genre.application.use_cases.list_genre import ListGenre
+from src.core.genre.application.use_cases.create_genre import CreateGenre
+from src.django_project.genre_app.serializers import CreateGenreInputSerializer
+from src.django_project.genre_app.serializers import CreateGenreOutputSerializer
+from src.core.genre.application.exceptions import InvalidGenre, RelatedCategoriesNotFound
 
 
 class GenreViewSet(viewsets.ViewSet):
@@ -24,36 +29,25 @@ class GenreViewSet(viewsets.ViewSet):
             status=HTTP_200_OK, 
             data=response_serializer.data
         )
-
-    # def retrieve(self, request: Request, pk=None):
-    #     serializer = RetrieveCategoryRequestSerializer(data={"id": pk})
-    #     serializer.is_valid(raise_exception=True)
-                
-    #     use_case = GetCategory(repository=DjangoORMCategoryRepository())
-
-    #     try:
-    #         result = use_case.execute(request=GetCategoryRequest(id=serializer.validated_data["id"]))
-    #     except CategoryNotFound:
-    #         return Response(status=HTTP_404_NOT_FOUND)
-        
-    #     category_output = RetrieveCategoryResponseSerializer(instance=result)
-    #     return Response(
-    #         status=HTTP_200_OK, 
-    #         data=category_output.data
-    #     )
     
-    # def create(self, request: Request) -> Response:
-    #     serializer = CreateCategoryRequestSerializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
+    def create(self, request: Request) -> Response:
+        serializer = CreateGenreInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-    #     input = CreateCategoryRequest(**serializer.validated_data)
-    #     use_case = CreateCategory(repository=DjangoORMCategoryRepository())
-    #     output = use_case.execute(request=input)
+        input = CreateGenre.Input(**serializer.validated_data)
+        use_case = CreateGenre(
+            repository=DjangoORMGenreRepository(), 
+            category_repository=DjangoORMCategoryRepository()
+        )
+        try:
+            output = use_case.execute(input)
+        except(InvalidGenre, RelatedCategoriesNotFound) as err:
+            return Response(data={"error": str(err)}, status=HTTP_400_BAD_REQUEST)
 
-    #     return Response(
-    #         status=HTTP_201_CREATED, 
-    #         data=CreateCategoryResponseSerializer(instance=output).data
-    #     )
+        return Response(
+            status=HTTP_201_CREATED, 
+            data=CreateGenreOutputSerializer(instance=output).data
+        )
     
     # def update(self, request: Request, pk=None) -> Response:
     #     serializer = UpdateCategoryRequestSerializer(
