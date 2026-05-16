@@ -6,6 +6,24 @@ import pytest
 from src.core.cast_member.domain.cast_member import CastMember, CastMemberType
 
 
+class TestCastMemberType:
+    @pytest.mark.parametrize(
+        ("raw_value", "expected_type"),
+        [
+            ("ACTOR", CastMemberType.ACTOR),
+            ("DIRECTOR", CastMemberType.DIRECTOR),
+        ],
+    )
+    def test_enum_accepts_allowed_values(self, raw_value, expected_type):
+        assert CastMemberType(raw_value) == expected_type
+
+    def test_enum_exposes_only_actor_and_director(self):
+        assert list(CastMemberType) == [
+            CastMemberType.ACTOR,
+            CastMemberType.DIRECTOR,
+        ]
+
+
 class TestCastMember:
     def test_name_is_required(self):
         with pytest.raises(TypeError, match="missing 2 required positional arguments: 'name' and 'type'"):
@@ -97,6 +115,12 @@ class TestUpdateCastMember:
 
         with pytest.raises(ValueError, match="name cannot be empty"):
             cast_member.update(name="", type=CastMemberType.DIRECTOR)
+
+    def test_update_cast_member_with_name_longer_than_255_characters(self):
+        cast_member = CastMember(name="Keanu Reeves", type=CastMemberType.ACTOR)
+
+        with pytest.raises(ValueError, match="name cannot be longer than 255 characters"):
+            cast_member.update(name="a" * 256, type=CastMemberType.DIRECTOR)
 
     def test_update_cast_member_with_invalid_type(self):
         cast_member = CastMember(name="Keanu Reeves", type=CastMemberType.ACTOR)
