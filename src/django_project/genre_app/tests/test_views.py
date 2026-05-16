@@ -172,7 +172,12 @@ class TestDeleteAPI:
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_delete_genre_from_repository(self, genre_romance, genre_repository):
+    def test_delete_genre_from_repository(
+        self,
+        genre_romance,
+        genre_repository,
+        category_repository,
+    ):
         genre_repository.save(genre_romance)
 
         url = f"/api/genres/{genre_romance.id}/"
