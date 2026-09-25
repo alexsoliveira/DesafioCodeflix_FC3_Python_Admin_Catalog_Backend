@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from uuid import UUID
-from core.category.domain.category_repository import CategoryRepository
+from src.core.category.domain.category_repository import CategoryRepository
 
 @dataclass
 class ListCategoryRequest:

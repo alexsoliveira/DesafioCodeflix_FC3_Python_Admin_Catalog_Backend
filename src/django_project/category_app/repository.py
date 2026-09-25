@@ -1,7 +1,7 @@
 import uuid
-from core.category.domain.category_repository import CategoryRepository
-from django_project.category_app.models import Category as CategoryModel
-from core.category.domain.category import Category
+from src.core.category.domain.category_repository import CategoryRepository
+from src.django_project.category_app.models import Category as CategoryModel
+from src.core.category.domain.category import Category
 from uuid import UUID
 
 class DjangoORMCategoryRepository(CategoryRepository):

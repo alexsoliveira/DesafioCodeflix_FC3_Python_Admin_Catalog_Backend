@@ -10,14 +10,14 @@ from rest_framework.status import (
     HTTP_204_NO_CONTENT
 )
 from uuid import UUID
-from core.category.application.use_cases.list_category import (
-    ListCategory, 
+from src.core.category.application.use_cases.list_category import (
+    ListCategory,
     ListCategoryRequest,
 )
-from core.category.application.use_cases.exceptions import CategoryNotFound
-from django_project.category_app.repository import DjangoORMCategoryRepository
-from core.category.application.use_cases.get_category import (
-    GetCategory, 
+from src.core.category.application.use_cases.exceptions import CategoryNotFound
+from src.django_project.category_app.repository import DjangoORMCategoryRepository
+from src.core.category.application.use_cases.get_category import (
+    GetCategory,
     GetCategoryRequest
 )
 from .serializers import (
@@ -29,16 +29,16 @@ from .serializers import (
     UpdateCategoryRequestSerializer,
     DeleteCategoryRequestSerializer
 )
-from core.category.application.use_cases.create_category import (
-    CreateCategory, 
+from src.core.category.application.use_cases.create_category import (
+    CreateCategory,
     CreateCategoryRequest
 )
-from core.category.application.use_cases.update_category import (
-    UpdateCategory, 
+from src.core.category.application.use_cases.update_category import (
+    UpdateCategory,
     UpdateCategoryRequest
 )
-from core.category.application.use_cases.delete_category import (
-    DeleteCategory, 
+from src.core.category.application.use_cases.delete_category import (
+    DeleteCategory,
     DeleteCategoryRequest
 )
 

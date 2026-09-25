@@ -2,10 +2,10 @@ import pytest
 import uuid
 from uuid import UUID
 from unittest.mock import MagicMock
-from core.category.application.use_cases.get_category import GetCategory, GetCategoryRequest, GetCategoryResponse
-from core.category.application.use_cases.exceptions import InvalidCategoryData, CategoryNotFound
-from core.category.infra.in_memory_category_repository import InMemoryCategoryRepository
-from core.category.domain.category import Category
+from src.core.category.application.use_cases.get_category import GetCategory, GetCategoryRequest, GetCategoryResponse
+from src.core.category.application.use_cases.exceptions import InvalidCategoryData, CategoryNotFound
+from src.core.category.infra.in_memory_category_repository import InMemoryCategoryRepository
+from src.core.category.domain.category import Category
 
 class TestGetCategory:
     def test_get_category_by_id(self):
