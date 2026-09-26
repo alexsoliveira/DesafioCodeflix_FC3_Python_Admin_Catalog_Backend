@@ -1,4 +1,6 @@
 from unittest.mock import create_autospec
+
+import pytest
 from src.core.category.domain.category import Category
 from src.core.category.domain.category_repository import CategoryRepository
 from src.core.category.application.use_cases.list_category import ListCategory, ListCategoryRequest, ListCategoryResponse, CategoryOutput
@@ -53,4 +55,96 @@ class TestListCategory:
                 ),
             ]
         )
-            
+
+    def test_list_categories_order_by_name(self):
+        category_movie = Category(
+            name="Movie", 
+            description="Category for movies",
+        )
+        category_documentary = Category(
+            name="Documentary", 
+            description="Category for documentaries",
+        )
+        repository = InMemoryCategoryRepository()
+        repository.save(category_movie)
+        repository.save(category_documentary)
+
+        use_case = ListCategory(repository=repository)
+        request = ListCategoryRequest(order_by="name")
+
+        response = use_case.execute(request)
+
+        assert response == ListCategoryResponse(
+            data=[
+                CategoryOutput(
+                    id=category_documentary.id,
+                    name=category_documentary.name,
+                    description=category_documentary.description,
+                    is_active=category_documentary.is_active
+                ),
+                CategoryOutput(
+                    id=category_movie.id,
+                    name=category_movie.name,
+                    description=category_movie.description,
+                    is_active=category_movie.is_active  
+                ),
+            ]
+        )
+
+    def test_list_categories_order_by_description(self):
+        category_movie = Category(
+            name="Movie", 
+            description="Category for movies",
+        )
+        category_documentary = Category(
+            name="Documentary", 
+            description="Category for documentaries",
+        )
+        repository = InMemoryCategoryRepository()
+        repository.save(category_movie)
+        repository.save(category_documentary)
+
+        use_case = ListCategory(repository=repository)
+        request = ListCategoryRequest(order_by="description")
+
+        response = use_case.execute(request)
+
+        assert response == ListCategoryResponse(
+                    data=[
+                        CategoryOutput(
+                            id=category_documentary.id,
+                            name=category_documentary.name,
+                            description=category_documentary.description,
+                            is_active=category_documentary.is_active
+                        ),
+                        CategoryOutput(
+                            id=category_movie.id,
+                            name=category_movie.name,
+                            description=category_movie.description,
+                            is_active=category_movie.is_active  
+                        ),
+                    ]
+                )
+
+    def test_list_categories_with_invalid_order_by(self):
+        category_movie = Category(
+            name="Movie",
+            description="Category for movies",
+        )
+        category_documentary = Category(
+            name="Documentary",
+            description="Category for documentaries",
+        )
+
+        repository = InMemoryCategoryRepository()
+        repository.save(category_movie)
+        repository.save(category_documentary)
+
+        use_case = ListCategory(repository=repository)
+        request = ListCategoryRequest(order_by="idade")
+
+        with pytest.raises(ValueError, match="Invalid order_by: idade"):
+            use_case.execute(request)
+
+        
+        

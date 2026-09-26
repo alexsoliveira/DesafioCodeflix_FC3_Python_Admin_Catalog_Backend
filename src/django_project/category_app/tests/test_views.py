@@ -59,17 +59,17 @@ class TestListAPI:
         expected_data = {
             "data": [
                 {
+                    "id": str(category_documentario.id),
+                    "name": category_documentario.name,
+                    "description": category_documentario.description,
+                    "is_active": category_documentario.is_active
+                },
+                {
                     "id": str(category_movie.id),
                     "name": category_movie.name,
                     "description": category_movie.description,
                     "is_active": category_movie.is_active
                 },
-                {
-                    "id": str(category_documentario.id),
-                    "name": category_documentario.name,
-                    "description": category_documentario.description,
-                    "is_active": category_documentario.is_active
-                }
             ]
         }
 
@@ -77,6 +77,39 @@ class TestListAPI:
         assert len(response.data["data"]) == 2
         assert response.data == expected_data
 
+    def test_list_categories_by_description(
+            self,
+            category_movie: Category,
+            category_documentario: Category,
+            category_repository: DjangoORMCategoryRepository
+        ) -> None:
+            category_repository.save(category_movie)
+            category_repository.save(category_documentario)
+    
+            url = '/api/categories/?order_by=description'
+            response = APIClient().get(url)
+      
+            expected_data = {
+                "data": [
+                    {
+                        "id": str(category_documentario.id),
+                        "name": category_documentario.name,
+                        "description": category_documentario.description,
+                        "is_active": category_documentario.is_active
+                    },
+                    {
+                        "id": str(category_movie.id),
+                        "name": category_movie.name,
+                        "description": category_movie.description,
+                        "is_active": category_movie.is_active
+                    }
+                ]
+            }
+    
+            assert response.status_code == status.HTTP_200_OK
+            assert len(response.data["data"]) == 2
+            assert response.data == expected_data
+        
 @pytest.mark.django_db
 class TestRestrieveAPI:
     def test_when_id_is_invalid_return_400(self) -> None:

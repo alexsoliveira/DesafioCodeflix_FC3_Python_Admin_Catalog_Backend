@@ -4,7 +4,7 @@ from src.core.category.domain.category_repository import CategoryRepository
 
 @dataclass
 class ListCategoryRequest:
-    pass
+    order_by: str = "name"
 
 @dataclass
 class CategoryOutput:
@@ -22,15 +22,19 @@ class ListCategory:
         self.repository = repository
 
     def execute(self, request: ListCategoryRequest) -> ListCategoryResponse:
+        valid_order_by = {"id", "name", "description", "is_active"}
+        if request.order_by not in valid_order_by:
+            raise ValueError(f"Invalid order_by: {request.order_by}")
+
         categories = self.repository.list()
 
         return ListCategoryResponse(
-            data=[
+            data=sorted([
                 CategoryOutput(
                     id=category.id,
                     name=category.name,
                     description=category.description,
                     is_active=category.is_active
                 ) for category in categories
-            ]
+            ], key=lambda category: getattr(category, request.order_by))
         )
