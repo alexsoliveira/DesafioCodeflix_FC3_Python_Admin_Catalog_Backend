@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from uuid import UUID
 
+from src.core._shared.entity import Entity
 
 class CastMemberType(StrEnum):
     ACTOR = "ACTOR"
@@ -10,10 +11,9 @@ class CastMemberType(StrEnum):
 
 
 @dataclass
-class CastMember:
+class CastMember(Entity):
     name: str
     type: CastMemberType
-    id: UUID = field(default_factory=uuid.uuid4)
 
     def __post_init__(self):
         self.validate()
@@ -32,9 +32,3 @@ class CastMember:
         self.name = name
         self.type = type
         self.validate()
-
-    def __eq__(self, other):
-        if not isinstance(other, CastMember):
-            return False
-        return self.id == other.id
-
