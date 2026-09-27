@@ -45,9 +45,11 @@ from src.core.category.application.use_cases.delete_category import (
 class CategoryViewSet(viewsets.ViewSet):
     def list(self, request: Request):
         order_by = request.query_params.get("order_by", "name")
+        current_page = int(request.query_params.get("current_page", 1))
         use_case = ListCategory(repository=DjangoORMCategoryRepository())
         response = use_case.execute(request=ListCategoryRequest(
-            order_by=order_by
+            order_by=order_by,
+            current_page=current_page
         ))
 
         serializer = ListCategoryResponseSerializer(instance=response)

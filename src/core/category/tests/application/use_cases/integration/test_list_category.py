@@ -146,5 +146,3 @@ class TestListCategory:
         with pytest.raises(ValueError, match="Invalid order_by: idade"):
             use_case.execute(request)
 
-        
-        
