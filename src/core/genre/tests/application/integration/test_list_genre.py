@@ -1,8 +1,8 @@
-
 from src.core.genre.infra.in_memory_genre_repository import InMemoryGenreRepository
 from src.core.category.infra.in_memory_category_repository import InMemoryCategoryRepository
 from src.core.category.domain.category import Category
 from src.core.genre.domain.genre import Genre
+from src.core._shared.application.list_output import ListOutput, ListOutputMeta
 from src.core.genre.application.use_cases.list_genre import ListGenre, GenreOutput
 
 class TestListGenre:
@@ -25,7 +25,7 @@ class TestListGenre:
         output = use_case.execute(input=ListGenre.Input())
 
         assert len(output.data) == 1
-        assert output == ListGenre.Output(
+        assert output == ListOutput(
             data=[
                 GenreOutput(
                     id=genre.id,
@@ -33,7 +33,8 @@ class TestListGenre:
                     is_active=genre.is_active,
                     categories={movie_category.id, documentary_category.id}
                 )
-            ]
+            ],
+            meta=ListOutputMeta(current_page=1, per_page=2, total=1)
         )
 
     # Criar um novo teste, quando não tenha nenhum gênero registrado. Então um repositorio vazio.
@@ -43,4 +44,5 @@ class TestListGenre:
         output = use_case.execute(input=ListGenre.Input())
 
         assert len(output.data) == 0
-        assert output == ListGenre.Output(data=[])
+        assert output == ListOutput(data=[], meta=ListOutputMeta(current_page=1, per_page=2, total=0))
+

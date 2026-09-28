@@ -7,6 +7,7 @@ from src.core.genre.application.use_cases.create_genre import CreateGenre
 from src.core.genre.application.exceptions import RelatedCategoriesNotFound, InvalidGenre
 import uuid
 from src.core.genre.domain.genre import Genre
+from src.core._shared.application.list_output import ListOutput, ListOutputMeta
 from src.core.genre.application.use_cases.list_genre import ListGenre, GenreOutput
 
 @pytest.fixture
@@ -33,11 +34,6 @@ def mock_empty_category_repository() -> CategoryRepository:
     repository.list.return_value = []
     return repository
 
-# Escreva os units tests para o use cae, o list genre
-# são unit tests bem simples, mas é bom para você ir pegando o jeito e entendendo cada vez mais essa 
-# diferença entre os testes de integração que estão utilizando um repositório, ainda que seja um repositório em memória, e os testes unitários que estão utilizando um mock do repositório.
-# e os nossos unit tests que estão baseados apenas na interface do nosso repositório.
-# Então você vai fazer algo parecido com o que fizemos nos unit tests do create genre. Então fica de exercicio.
 class TestListGenre:
     def test_list_genres_with_associated_categories(
         self, 
@@ -54,7 +50,7 @@ class TestListGenre:
         output = use_case.execute(input=ListGenre.Input())
 
         assert len(output.data) == 1
-        assert output == ListGenre.Output(
+        assert output == ListOutput(
             data=[
                 GenreOutput(
                     id=genre.id,
@@ -62,7 +58,8 @@ class TestListGenre:
                     is_active=genre.is_active,
                     categories={mock_category_repository_with_categories}
                 )
-            ]
+            ],
+            meta=ListOutputMeta(current_page=1, per_page=2, total=1)
         )
 
     def test_list_genres_with_no_genres_registered(self):
@@ -73,4 +70,4 @@ class TestListGenre:
         output = use_case.execute(input=ListGenre.Input())
 
         assert len(output.data) == 0
-        assert output == ListGenre.Output(data=[])
+        assert output == ListOutput(data=[], meta=ListOutputMeta(current_page=1, per_page=2, total=0))

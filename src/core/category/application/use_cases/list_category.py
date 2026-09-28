@@ -1,6 +1,7 @@
-from dataclasses import dataclass, field
+﻿from dataclasses import dataclass, field
 from uuid import UUID
 from src.core.category.domain.category_repository import CategoryRepository
+from src.core._shared.application.list_output import ListOutput, ListOutputMeta
 
 @dataclass
 class ListCategoryRequest:
@@ -14,22 +15,11 @@ class CategoryOutput:
     description: str
     is_active: bool
 
-@dataclass
-class ListOutputMeta:
-    current_page: int
-    per_page: int
-    total: int
-
-@dataclass
-class ListCategoryResponse:
-    data: list[CategoryOutput]
-    meta: ListOutputMeta = field(default_factory=ListOutputMeta)
-
 class ListCategory:
     def __init__(self, repository: CategoryRepository):
         self.repository = repository
 
-    def execute(self, request: ListCategoryRequest) -> ListCategoryResponse:
+    def execute(self, request: ListCategoryRequest) -> ListOutput[CategoryOutput]:
         valid_order_by = {"id", "name", "description", "is_active"}
 
         if request.order_by not in valid_order_by:
@@ -50,11 +40,12 @@ class ListCategory:
         page_offset = (request.current_page - 1) * DEFAULT_PAGE_SIZE
         categories_page = sorted_categories[page_offset:page_offset + DEFAULT_PAGE_SIZE]
 
-        return ListCategoryResponse(
+        return ListOutput[CategoryOutput](
             data=categories_page,
             meta=ListOutputMeta(
                 current_page=request.current_page,
                 per_page=DEFAULT_PAGE_SIZE,
-                total= len(sorted_categories),
+                total=len(sorted_categories),
             )
         )
+

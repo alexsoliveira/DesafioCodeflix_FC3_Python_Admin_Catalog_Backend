@@ -1,4 +1,4 @@
-import pytest
+﻿import pytest
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -17,7 +17,7 @@ class TestCreateUpdateAndDeleteGenre:
 
         list_response = api_client.get("/api/genres/")
         assert list_response.status_code == status.HTTP_200_OK
-        assert list_response.data == {"data": []}
+        assert list_response.data == {"data": [], "meta": {"current_page": 1, "per_page": 2, "total": 0}}
 
         category_movie_response = api_client.post(
             "/api/categories/",
@@ -84,7 +84,8 @@ class TestCreateUpdateAndDeleteGenre:
                     "is_active": False,
                     "categories": [str(category_movie_id)],
                 }
-            ]
+            ],
+            "meta": {"current_page": 1, "per_page": 2, "total": 1}
         }
 
         delete_response = api_client.delete(f"/api/genres/{created_genre_id}/")
@@ -92,4 +93,5 @@ class TestCreateUpdateAndDeleteGenre:
 
         list_response = api_client.get("/api/genres/")
         assert list_response.status_code == status.HTTP_200_OK
-        assert list_response.data == {"data": []}
+        assert list_response.data == {"data": [], "meta": {"current_page": 1, "per_page": 2, "total": 0}}
+

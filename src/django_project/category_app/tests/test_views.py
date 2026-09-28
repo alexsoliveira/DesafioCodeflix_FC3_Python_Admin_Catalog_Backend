@@ -1,4 +1,4 @@
-from rest_framework import status
+﻿from rest_framework import status
 from src.django_project.category_app.repository import DjangoORMCategoryRepository
 from src.django_project.category_app.models import Category as CategoryModel
 from src.core.category.domain.category import Category
@@ -75,6 +75,7 @@ class TestListAPI:
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data["data"]) == 2
+        expected_data['meta'] = {'current_page': 1, 'per_page': 2, 'total': 2}
         assert response.data == expected_data
 
     def test_list_categories_by_description(
@@ -107,7 +108,8 @@ class TestListAPI:
             }
     
             assert response.status_code == status.HTTP_200_OK
-            assert len(response.data["data"]) == 2
+            assert len(response.data['data']) == 2
+            expected_data['meta'] = {'current_page': 1, 'per_page': 2, 'total': 2}
             assert response.data == expected_data
         
 @pytest.mark.django_db
@@ -121,23 +123,16 @@ class TestRestrieveAPI:
 
     def test_return_category_when_exists(
         self,
-        category_movie: Category,
-        category_documentario: Category,
-        category_repository: DjangoORMCategoryRepository
+        category_movie,
+        category_documentario,
+        category_repository
     ) -> None:
         category_repository.save(category_movie)
         category_repository.save(category_documentario)
-
+    
         url = f'/api/categories/{category_documentario.id}/'
         response = APIClient().get(url)
-
-        # expected_data = {
-        #     "id": str(category_documentario.id),
-        #     "name": category_documentario.name,
-        #     "description": category_documentario.description,
-        #     "is_active": category_documentario.is_active
-        # }
-
+    
         expected_data = {
             "data": {
                 "id": str(category_documentario.id),
@@ -344,3 +339,7 @@ class TestPartialUpdateAPI:
         assert updated_category.description == category_movie.description
         assert updated_category.is_active is False
         
+
+
+
+

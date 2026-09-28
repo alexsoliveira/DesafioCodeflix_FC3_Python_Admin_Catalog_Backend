@@ -1,4 +1,4 @@
-import pytest
+﻿import pytest
 from rest_framework.test import APIClient
 
 from src.django_project.category_app.models import Category as CategoryModel
@@ -14,7 +14,7 @@ class TestCreateAndEditCategory:
     
         # Verifica que lista de categorias está vazia
         list_response = api_client.get('/api/categories/')
-        assert list_response.data == {"data": []}
+        assert list_response.data == {"data": [], "meta": {"current_page": 1, "per_page": 2, "total": 0}}
 
         # Cria uma categoria
         create_response = api_client.post(''
@@ -37,7 +37,8 @@ class TestCreateAndEditCategory:
                     "description": "Categoria para filmes",
                     "is_active": True
                 }
-            ]
+            ],
+            "meta": {"current_page": 1, "per_page": 2, "total": 1}
         }
 
         # Edita a categoria criada
@@ -61,5 +62,7 @@ class TestCreateAndEditCategory:
                     "description": "Categoria para filmes",
                     "is_active": False
                 }
-            ]
+            ],
+            "meta": {"current_page": 1, "per_page": 2, "total": 1}
         }
+
