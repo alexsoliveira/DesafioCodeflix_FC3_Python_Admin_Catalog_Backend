@@ -1,4 +1,4 @@
-﻿from rest_framework import status
+from rest_framework import status
 from src.django_project.category_app.repository import DjangoORMCategoryRepository
 from src.django_project.category_app.models import Category as CategoryModel
 from src.core.category.domain.category import Category
@@ -111,6 +111,42 @@ class TestListAPI:
             assert len(response.data['data']) == 2
             expected_data['meta'] = {'current_page': 1, 'per_page': 2, 'total': 2}
             assert response.data == expected_data
+
+    def test_list_categories_with_5_elements_paginated(
+        self,
+        category_repository: DjangoORMCategoryRepository
+    ) -> None:
+        category_repository.save(Category(name="C", description="cat C"))
+        category_repository.save(Category(name="E", description="cat E"))
+        category_repository.save(Category(name="A", description="cat A"))
+        category_repository.save(Category(name="D", description="cat D"))
+        category_repository.save(Category(name="B", description="cat B"))
+
+        # Page 1
+        url_p1 = '/api/categories/?order_by=name&current_page=1'
+        response_p1 = APIClient().get(url_p1)
+        assert response_p1.status_code == status.HTTP_200_OK
+        assert len(response_p1.data["data"]) == 2
+        assert response_p1.data["data"][0]["name"] == "A"
+        assert response_p1.data["data"][1]["name"] == "B"
+        assert response_p1.data["meta"] == {'current_page': 1, 'per_page': 2, 'total': 5}
+
+        # Page 2
+        url_p2 = '/api/categories/?order_by=name&current_page=2'
+        response_p2 = APIClient().get(url_p2)
+        assert response_p2.status_code == status.HTTP_200_OK
+        assert len(response_p2.data["data"]) == 2
+        assert response_p2.data["data"][0]["name"] == "C"
+        assert response_p2.data["data"][1]["name"] == "D"
+        assert response_p2.data["meta"] == {'current_page': 2, 'per_page': 2, 'total': 5}
+
+        # Page 3
+        url_p3 = '/api/categories/?order_by=name&current_page=3'
+        response_p3 = APIClient().get(url_p3)
+        assert response_p3.status_code == status.HTTP_200_OK
+        assert len(response_p3.data["data"]) == 1
+        assert response_p3.data["data"][0]["name"] == "E"
+        assert response_p3.data["meta"] == {'current_page': 3, 'per_page': 2, 'total': 5}
         
 @pytest.mark.django_db
 class TestRestrieveAPI:
