@@ -1,6 +1,7 @@
-from src.core.genre.domain.genre_repository import GenreRepository
 from dataclasses import dataclass
 from uuid import UUID
+from src.core.genre.domain.genre_repository import GenreRepository
+from src.core._shared.application.list_output import ListOutput, ListOutputMeta
 
 @dataclass
 class GenreOutput:
@@ -15,15 +16,17 @@ class ListGenre:
 
     @dataclass
     class Input:
-        pass
+        order_by: str = "name"
+        current_page: int = 1
 
-    @dataclass
-    class Output:
-        data: list[GenreOutput]
+    def execute(self, input: Input) -> ListOutput[GenreOutput]:
+        valid_order_by = {"id", "name", "is_active"}
 
-    def execute(self, input: Input):
+        if input.order_by not in valid_order_by:
+            raise ValueError(f"Invalid order_by: {input.order_by}")
+
         genres = self.repository.list()
-
+        
         mapped_genres = [
             GenreOutput(
                 id=genre.id,
@@ -33,4 +36,20 @@ class ListGenre:
             ) for genre in genres
         ]
 
-        return self.Output(data=mapped_genres)
+        sorted_genres = sorted(
+            mapped_genres,
+            key=lambda genre: getattr(genre, input.order_by)
+        )
+
+        DEFAULT_PAGE_SIZE = 2
+        page_offset = (input.current_page - 1) * DEFAULT_PAGE_SIZE
+        genres_page = sorted_genres[page_offset:page_offset + DEFAULT_PAGE_SIZE]
+
+        return ListOutput[GenreOutput](
+            data=genres_page,
+            meta=ListOutputMeta(
+                current_page=input.current_page,
+                per_page=DEFAULT_PAGE_SIZE,
+                total=len(sorted_genres),
+            )
+        )

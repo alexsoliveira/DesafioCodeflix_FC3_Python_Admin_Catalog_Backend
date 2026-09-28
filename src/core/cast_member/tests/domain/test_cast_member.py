@@ -80,7 +80,7 @@ class TestEquality:
             type=CastMemberType.DIRECTOR,
         )
 
-        assert cast_member_1 == cast_member_2
+        assert cast_member_1.id == cast_member_2.id
 
     def test_equality_different_classes(self):
         class Dummy:

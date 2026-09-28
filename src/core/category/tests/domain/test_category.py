@@ -64,6 +64,14 @@ class TestCategory:
         assert repr(category) == f"<Category: Filmes ({cat_id})>"
         # self.assertEqual(repr(category), f"<Category: Filmes ({cat_id})>")
 
+    def test_description_must_have_less_than_1024_characters(self):
+        with pytest.raises(ValueError, match="description cannot be longer than 1024 characters"):
+            Category(name="Filmes", description="a" * 1025)
+
+    def test_name_and_description_are_invalid(self):
+            with pytest.raises(ValueError, match="^name cannot be empty,description cannot be longer than 1024 characters$"):
+                Category(name="", description="a" * 1025)
+
 
 class TestUpdateCategory:
     def test_update_category_with_name_and_description(self):

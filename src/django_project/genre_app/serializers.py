@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from src.django_project.shared_serializers import ListOutputMetaSerializer
 
 class GenreOutputSerializer(serializers.Serializer):
     id = serializers.UUIDField()
@@ -8,6 +9,7 @@ class GenreOutputSerializer(serializers.Serializer):
 
 class ListGenreOutputSerializer(serializers.Serializer):
     data = GenreOutputSerializer(many=True)
+    meta = ListOutputMetaSerializer()
 
 class SetField(serializers.ListField):
     def to_internal_value(self, data):
@@ -39,4 +41,3 @@ class UpdateGenreInputSerializer(serializers.Serializer):
 
 class DeleteGenreInputSerializer(serializers.Serializer):
     id = serializers.UUIDField()
-

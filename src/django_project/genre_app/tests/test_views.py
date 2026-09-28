@@ -1,4 +1,4 @@
-from rest_framework.test import APIClient
+﻿from rest_framework.test import APIClient
 import pytest
 
 from src.core.category.domain.category import Category
@@ -52,8 +52,8 @@ def genre_repository() -> DjangoORMGenreRepository:
 @pytest.mark.django_db
 class TestListAPI:
     def test_list_genres_and_categories(
-        self, 
-        genre_romance, 
+        self,
+        genre_romance,
         genre_drama,
         genre_repository,
         category_movie,
@@ -62,47 +62,27 @@ class TestListAPI:
     ):
         genre_repository.save(genre_romance)
         genre_repository.save(genre_drama)
-
+    
         url = "/api/genres/"
         response = APIClient().get(url)
-
-        # excepted_response = {
-        #     "data": [
-        #         {
-        #             "id": str(genre_romance.id),
-        #             "name": "Romance",
-        #             "is_active": True,
-        #             "categories": [
-        #                 str(category_movie.id),
-        #                 str(category_documentario.id),
-        #             ]
-        #         },
-        #         {
-        #             "id": str(genre_drama.id),
-        #             "name": "Drama",
-        #             "is_active": True,
-        #             "categories": []
-        #         }
-        #     ]
-        # }
-
-        assert response.status_code == status.HTTP_200_OK
-        # assert response.data == excepted_response
-
-        assert response.data["data"][0]["id"] == str(genre_romance.id)
-        assert response.data["data"][0]["name"] == "Romance"
+    
+        assert response.status_code == 200
+        assert response.data["meta"] == {"current_page": 1, "per_page": 2, "total": 2}
+        
+        # Order by name: Drama comes before Romance
+        assert response.data["data"][0]["id"] == str(genre_drama.id)
+        assert response.data["data"][0]["name"] == "Drama"
         assert response.data["data"][0]["is_active"] == True
-        assert set(response.data["data"][0]["categories"]) == {
-            str(category_movie.id), 
+        assert response.data["data"][0]["categories"] == []
+        
+        assert response.data["data"][1]["id"] == str(genre_romance.id)
+        assert response.data["data"][1]["name"] == "Romance"
+        assert response.data["data"][1]["is_active"] == True
+        assert set(response.data["data"][1]["categories"]) == {
+            str(category_movie.id),
             str(category_documentario.id)
         }
 
-        assert response.data["data"][1]["id"] == str(genre_drama.id)
-        assert response.data["data"][1]["name"] == "Drama"
-        assert response.data["data"][1]["is_active"] == True
-        assert response.data["data"][1]["categories"] == [] 
-        
-@pytest.mark.django_db
 class TestCreateAPI:
     def test_create_genre_with_associated_categories(
         self, 
@@ -267,3 +247,4 @@ class TestUpdateAPI:
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
