@@ -26,8 +26,11 @@ class CastMemberResponseSerializer(serializers.Serializer):
     type = CastMemberTypeField()
 
 
+from src.django_project.shared_serializers import ListOutputMetaSerializer
+
 class ListCastMemberResponseSerializer(serializers.Serializer):
     data = CastMemberResponseSerializer(many=True)
+    meta = ListOutputMetaSerializer()
 
 
 class CreateCastMemberRequestSerializer(serializers.Serializer):

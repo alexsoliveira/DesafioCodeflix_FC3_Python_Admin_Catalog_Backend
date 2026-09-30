@@ -1,9 +1,9 @@
-﻿from dataclasses import dataclass
+from dataclasses import dataclass
 from uuid import UUID
 
 from src.core.cast_member.domain.cast_member import CastMemberType
 from src.core.cast_member.domain.cast_member_repository import CastMemberRepository
-from src.core._shared.application.list_output import ListOutput, ListOutputMeta
+from src.core._shared.application.list_output import ListOutput, ListOutputMeta, sort_and_paginate
 
 @dataclass
 class ListCastMemberRequest:
@@ -37,21 +37,11 @@ class ListCastMember:
             for cast_member in cast_members
         ]
 
-        sorted_cast_members = sorted(
-            mapped_cast_members,
-            key=lambda cast_member: getattr(cast_member, request.order_by)
-        )
-
         DEFAULT_PAGE_SIZE = 2
-        page_offset = (request.current_page - 1) * DEFAULT_PAGE_SIZE
-        cast_members_page = sorted_cast_members[page_offset:page_offset + DEFAULT_PAGE_SIZE]
-
-        return ListOutput[CastMemberOutput](
-            data=cast_members_page,
-            meta=ListOutputMeta(
-                current_page=request.current_page,
-                per_page=DEFAULT_PAGE_SIZE,
-                total=len(sorted_cast_members),
-            )
+        return sort_and_paginate(
+            items=mapped_cast_members,
+            order_by=request.order_by,
+            current_page=request.current_page,
+            per_page=DEFAULT_PAGE_SIZE,
         )
 
