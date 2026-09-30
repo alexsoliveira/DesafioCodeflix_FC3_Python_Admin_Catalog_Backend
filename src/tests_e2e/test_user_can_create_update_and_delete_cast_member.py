@@ -15,7 +15,7 @@ class TestCreateUpdateAndDeleteCastMember:
 
         list_response = api_client.get("/api/cast_members/")
         assert list_response.status_code == status.HTTP_200_OK
-        assert list_response.data == {"data": []}
+        assert list_response.data == {"data": [], "meta": {"current_page": 1, "per_page": 2, "total": 0}}
 
         create_response = api_client.post(
             "/api/cast_members/",
@@ -36,7 +36,8 @@ class TestCreateUpdateAndDeleteCastMember:
                     "name": "Keanu Reeves",
                     "type": "ACTOR",
                 }
-            ]
+            ],
+            "meta": {"current_page": 1, "per_page": 2, "total": 1}
         }
 
         update_response = api_client.put(
@@ -57,7 +58,8 @@ class TestCreateUpdateAndDeleteCastMember:
                     "name": "Lana Wachowski",
                     "type": "DIRECTOR",
                 }
-            ]
+            ],
+            "meta": {"current_page": 1, "per_page": 2, "total": 1}
         }
 
         delete_response = api_client.delete(
@@ -67,4 +69,4 @@ class TestCreateUpdateAndDeleteCastMember:
 
         list_response = api_client.get("/api/cast_members/")
         assert list_response.status_code == status.HTTP_200_OK
-        assert list_response.data == {"data": []}
+        assert list_response.data == {"data": [], "meta": {"current_page": 1, "per_page": 2, "total": 0}}
