@@ -71,3 +71,39 @@ class TestListGenre:
 
         assert len(output.data) == 0
         assert output == ListOutput(data=[], meta=ListOutputMeta(current_page=1, per_page=2, total=0))
+
+    def test_pagination_and_sorting_with_5_elements(self):
+        genres = [
+            Genre(name="C"),
+            Genre(name="E"),
+            Genre(name="A"),
+            Genre(name="D"),
+            Genre(name="B"),
+        ]
+        mock_repository = create_autospec(GenreRepository)
+        mock_repository.list.return_value = genres
+
+        use_case = ListGenre(repository=mock_repository)
+
+        # Page 1
+        requestp1 = ListGenre.Input(current_page=1, order_by="name")
+        response_p1 = use_case.execute(requestp1)
+        assert len(response_p1.data) == 2
+        assert response_p1.data[0].name == "A"
+        assert response_p1.data[1].name == "B"
+        assert response_p1.meta == ListOutputMeta(current_page=1, per_page=2, total=5)
+
+        # Page 2
+        requestp2 = ListGenre.Input(current_page=2, order_by="name")
+        response_p2 = use_case.execute(requestp2)
+        assert len(response_p2.data) == 2
+        assert response_p2.data[0].name == "C"
+        assert response_p2.data[1].name == "D"
+        assert response_p2.meta == ListOutputMeta(current_page=2, per_page=2, total=5)
+
+        # Page 3
+        requestp3 = ListGenre.Input(current_page=3, order_by="name")
+        response_p3 = use_case.execute(requestp3)
+        assert len(response_p3.data) == 1
+        assert response_p3.data[0].name == "E"
+        assert response_p3.meta == ListOutputMeta(current_page=3, per_page=2, total=5)
