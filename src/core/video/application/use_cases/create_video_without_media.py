@@ -71,7 +71,7 @@ class CreateVideoWithoutMedia:
 
     def validate_categories(self, input: Input, notification: Notification) -> None:
         category_ids = {category.id for category in self.category_repository.list()}
-        if not category_ids.issubset(category_ids):
+        if not input.categories.issubset(category_ids):
            notification.add_error("Categories with provided IDs not found")
 
     def validate_cast_members(self, input: Input, notification: Notification) -> None:
