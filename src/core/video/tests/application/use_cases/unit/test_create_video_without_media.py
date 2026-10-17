@@ -493,3 +493,36 @@ class TestCreateVideoWithoutMedia:
         assert exc_info.type is InvalidVideo
         assert "title cannot be longer than 255" in str(exc_info.value)
         mock_video_repository.save.assert_not_called()
+
+    def test_create_video_without_media_with_opened_true(
+        self,
+        mock_video_repository,
+        mock_category_repository,
+        mock_genre_repository,
+        mock_cast_member_repository,
+    ):
+        use_case = CreateVideoWithoutMedia(
+            video_repository=mock_video_repository,
+            category_repository=mock_category_repository,
+            genre_repository=mock_genre_repository,
+            cast_member_repository=mock_cast_member_repository,
+        )
+
+        output = use_case.execute(
+            CreateVideoWithoutMedia.Input(
+                title="The Matrix",
+                description="A sci-fi classic movie",
+                launch_year=1999,
+                duration=Decimal("136.0"),
+                rating=Rating.AGE_14,
+                categories=set(),
+                genres=set(),
+                cast_members=set(),
+                opened=True,
+            )
+        )
+
+        saved_video = mock_video_repository.save.call_args.args[0]
+        assert saved_video.id == output.id
+        assert saved_video.opened is True
+        assert saved_video.published is False

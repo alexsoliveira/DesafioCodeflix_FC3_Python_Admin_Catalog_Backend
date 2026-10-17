@@ -14,6 +14,7 @@ class Video(models.Model):
     launch_year = models.IntegerField()
     duration = models.DecimalField(max_digits=10, decimal_places=2)
     published = models.BooleanField()
+    opened = models.BooleanField(default=False)
     rating = models.CharField(max_length=255, choices=RATING_CHOICES)
 
     categories = models.ManyToManyField('category_app.Category', related_name='videos')

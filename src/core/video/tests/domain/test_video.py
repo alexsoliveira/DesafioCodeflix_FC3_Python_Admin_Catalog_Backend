@@ -66,22 +66,18 @@ class TestMediaStatus:
 
 class TestImageMedia:
     def test_create_image_media(self):
-        media_id = uuid.uuid4()
         image = ImageMedia(
-            id=media_id,
             checksum="a1b2c3d4",
             name="banner.png",
             location="/images/banner.png",
         )
 
-        assert image.id == media_id
         assert image.checksum == "a1b2c3d4"
         assert image.name == "banner.png"
         assert image.location == "/images/banner.png"
 
     def test_image_media_is_immutable(self):
         image = ImageMedia(
-            id=uuid.uuid4(),
             checksum="a1b2c3d4",
             name="banner.png",
             location="/images/banner.png",
@@ -91,15 +87,12 @@ class TestImageMedia:
             image.name = "new_banner.png"
 
     def test_image_media_equality(self):
-        media_id = uuid.uuid4()
         image_1 = ImageMedia(
-            id=media_id,
             checksum="a1b2c3d4",
             name="banner.png",
             location="/images/banner.png",
         )
         image_2 = ImageMedia(
-            id=media_id,
             checksum="a1b2c3d4",
             name="banner.png",
             location="/images/banner.png",
@@ -109,13 +102,11 @@ class TestImageMedia:
 
     def test_image_media_inequality(self):
         image_1 = ImageMedia(
-            id=uuid.uuid4(),
             checksum="a1b2c3d4",
             name="banner.png",
             location="/images/banner.png",
         )
         image_2 = ImageMedia(
-            id=uuid.uuid4(),
             checksum="different",
             name="banner.png",
             location="/images/banner.png",
@@ -126,9 +117,7 @@ class TestImageMedia:
 
 class TestAudioVideoMedia:
     def test_create_audio_video_media(self):
-        media_id = uuid.uuid4()
         media = AudioVideoMedia(
-            id=media_id,
             checksum="e5f6g7h8",
             name="trailer.mp4",
             raw_location="/raw/trailer.mp4",
@@ -136,7 +125,6 @@ class TestAudioVideoMedia:
             status=MediaStatus.PENDING,
         )
 
-        assert media.id == media_id
         assert media.checksum == "e5f6g7h8"
         assert media.name == "trailer.mp4"
         assert media.raw_location == "/raw/trailer.mp4"
@@ -145,7 +133,6 @@ class TestAudioVideoMedia:
 
     def test_audio_video_media_is_immutable(self):
         media = AudioVideoMedia(
-            id=uuid.uuid4(),
             checksum="e5f6g7h8",
             name="trailer.mp4",
             raw_location="/raw/trailer.mp4",
@@ -157,9 +144,7 @@ class TestAudioVideoMedia:
             media.status = MediaStatus.COMPLETED
 
     def test_audio_video_media_equality(self):
-        media_id = uuid.uuid4()
         media_1 = AudioVideoMedia(
-            id=media_id,
             checksum="e5f6g7h8",
             name="trailer.mp4",
             raw_location="/raw/trailer.mp4",
@@ -167,7 +152,6 @@ class TestAudioVideoMedia:
             status=MediaStatus.PROCESSING,
         )
         media_2 = AudioVideoMedia(
-            id=media_id,
             checksum="e5f6g7h8",
             name="trailer.mp4",
             raw_location="/raw/trailer.mp4",
@@ -179,7 +163,6 @@ class TestAudioVideoMedia:
 
     def test_audio_video_media_inequality(self):
         media_1 = AudioVideoMedia(
-            id=uuid.uuid4(),
             checksum="e5f6g7h8",
             name="trailer.mp4",
             raw_location="/raw/trailer.mp4",
@@ -187,7 +170,6 @@ class TestAudioVideoMedia:
             status=MediaStatus.PENDING,
         )
         media_2 = AudioVideoMedia(
-            id=uuid.uuid4(),
             checksum="e5f6g7h8",
             name="trailer.mp4",
             raw_location="/raw/trailer.mp4",

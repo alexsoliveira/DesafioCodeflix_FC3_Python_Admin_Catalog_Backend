@@ -2,12 +2,10 @@
 - Value Objects:
     - Rating: ENUM (ER, L, AGE_10, AGE_12, AGE_14, AGE_16, AGE_18)
     - ImageMedia:
-        - Id: UUID | String
         - Checksum: String
         - Name: String
         - Location: String
     - AudioVideoMedia:
-        - Id: UUID | String
         - Checksum: String
         - Name: String
         - RawLocation: String
@@ -18,7 +16,6 @@
 
 from dataclasses import dataclass
 from enum import Enum, auto, unique
-from uuid import UUID
 
 @unique
 class MediaStatus(Enum):
@@ -39,14 +36,12 @@ class Rating(Enum):
 
 @dataclass(frozen=True)
 class ImageMedia:
-    id: UUID
     checksum: str
     name: str
     location: str
 
 @dataclass(frozen=True)
 class AudioVideoMedia:
-    id: UUID
     checksum: str
     name: str
     raw_location: str

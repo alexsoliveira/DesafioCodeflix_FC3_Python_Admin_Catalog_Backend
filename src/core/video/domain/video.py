@@ -57,6 +57,8 @@ class Video(Entity):
     genres: set[UUID]
     cast_members: set[UUID]
 
+    opened: bool = False
+
     banner: ImageMedia | None = None
     thumbnail: ImageMedia | None = None
     thumbnail_half: ImageMedia | None = None

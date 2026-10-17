@@ -24,6 +24,7 @@ class CreateVideoWithoutMedia:
         categories: set[UUID]
         genres: set[UUID]
         cast_members: set[UUID]
+        opened: bool = False
 
     @dataclass
     class Output:
@@ -57,6 +58,7 @@ class CreateVideoWithoutMedia:
                 launch_year=input.launch_year,
                 duration=input.duration,
                 published=False,
+                opened=input.opened,
                 rating=input.rating,
                 categories=input.categories,
                 genres=input.genres,
