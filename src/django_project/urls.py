@@ -15,12 +15,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 
 from rest_framework.routers import DefaultRouter
 from src.django_project.cast_member_app.views import CastMemberViewSet
 from src.django_project.category_app.views import CategoryViewSet
 from src.django_project.genre_app.views import GenreViewSet
+from src.django_project.video_app.views import VideoViewSet
 
 router = DefaultRouter()
 router.register(r"api/categories", CategoryViewSet, basename="category")
@@ -29,4 +30,5 @@ router.register(r"api/cast_members", CastMemberViewSet, basename="cast-member")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    re_path(r"^api/videos/?$", VideoViewSet.as_view({"post": "create"}), name="video-list"),
 ] + router.urls
