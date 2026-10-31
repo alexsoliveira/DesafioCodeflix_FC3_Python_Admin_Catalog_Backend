@@ -28,7 +28,7 @@ class UploadVideo:
         # encontrar nossa entidade
         video = self.video_repository.get_by_id(input.video_id)
         if video is None:
-            raise VideoNotFound(input.video_id)
+            raise VideoNotFound(f"Video with id {input.video_id} not found")
 
         # upload do nosso arquivo -> storage
         # "/videos/<id>/meuvideo.mp4"

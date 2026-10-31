@@ -54,4 +54,20 @@ class TestUploadVideo:
         )
 
     def test_when_video_does_not_exist_then_raise_error(self):
-        pass
+        video_repository = InMemoryVideoRepository(videos=[])
+        mock_storage = create_autospec(AbstractStorageService)
+
+        use_case = UploadVideo(
+            video_repository=video_repository,
+            storage_service=mock_storage
+        )
+        input = UploadVideo.Input(
+            video_id="non-existent-id",
+            file_name="video.mp4",
+            content=b"conteudo do arquivo",
+            content_type="video/mp4"
+        )
+        try:
+            use_case.execute(input=input)
+        except Exception as e:
+            assert str(e) == "Video with id non-existent-id not found"
