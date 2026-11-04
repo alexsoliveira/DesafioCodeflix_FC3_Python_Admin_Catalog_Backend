@@ -4,18 +4,13 @@ from django.db import transaction
 
 from src.core.video.domain.value_objects import (
     AudioVideoMedia,
-    ImageMedia,
-    MediaStatus,
-    Rating,
 )
 from src.core.video.domain.video import Video
 from src.core.video.domain.video_repository import VideoRepository
 from src.django_project.video_app.models import (
     AudioVideoMedia as AudioVideoMediaORM,
-    ImageMedia as ImageMediaORM,
     Video as VideoORM,
 )
-
 
 class DjangoORMVideoRepository(VideoRepository):
     def save(self, video: Video):
@@ -28,7 +23,7 @@ class DjangoORMVideoRepository(VideoRepository):
                 duration=video.duration,
                 published=video.published,
                 opened=video.opened,
-                rating=self._rating_name(video.rating),
+                rating=video.rating,
             )
             video_model.categories.set(video.categories)
             video_model.genres.set(video.genres)
@@ -36,81 +31,74 @@ class DjangoORMVideoRepository(VideoRepository):
 
     def get_by_id(self, id: UUID) -> Video | None:
         try:
-            video_model = VideoORM.objects.get(id=id)
+            video_model = VideoORM.objects.get(pk=id)
+            return Video(
+                id=video_model.id,
+                title=video_model.title,
+                description=video_model.description,
+                launch_year=video_model.launch_year,
+                duration=video_model.duration,
+                published=video_model.published,
+                opened=video_model.opened,
+                rating=video_model.rating,
+                categories=set(video_model.categories.values_list('id', flat=True)),
+                genres=set(video_model.genres.values_list('id', flat=True)),
+                cast_members=set(video_model.cast_members.values_list('id', flat=True)),
+            )
         except VideoORM.DoesNotExist:
             return None
 
-        return self._to_entity(video_model)
-
     def delete(self, id: UUID) -> None:
-        VideoORM.objects.filter(id=id).delete()
+        VideoORM.objects.filter(pk=id).delete()
+
+    def list(self) -> list[Video]:
+        video_models = VideoORM.objects.all()
+        return [
+            Video(
+                id=video_model.id,
+                title=video_model.title,
+                description=video_model.description,
+                launch_year=video_model.launch_year,
+                duration=video_model.duration,
+                published=video_model.published,
+                opened=video_model.opened,
+                rating=video_model.rating,
+                categories=set(video_model.categories.values_list('id', flat=True)),
+                genres=set(video_model.genres.values_list('id', flat=True)),
+                cast_members=set(video_model.cast_members.values_list('id', flat=True)),
+            )
+            for video_model in video_models
+        ]
 
     def update(self, video: Video) -> None:
         try:
             video_model = VideoORM.objects.get(id=video.id)
         except VideoORM.DoesNotExist:
             return None
+        else:        
+            # Buscar e deletar video medias associadas
+            AudioVideoMedia.objects.filter(video_id=video.id).delete()
 
-        with transaction.atomic():
-            VideoORM.objects.filter(id=video.id).update(
-                title=video.title,
-                description=video.description,
-                launch_year=video.launch_year,
-                duration=video.duration,
-                published=video.published,
-                opened=video.opened,
-                rating=self._rating_name(video.rating),
-            )
+            # Atualiza relationships
             video_model.categories.set(video.categories)
             video_model.genres.set(video.genres)
             video_model.cast_members.set(video.cast_members)
 
-    def list(self) -> list[Video]:
-        return [self._to_entity(video_model) for video_model in VideoORM.objects.all()]
+            # Persistir o Value Object
+            video_model.video = AudioVideoMediaORM.objects.create(
+                name=video.video.name,
+                raw_location=video.video.raw_location,
+                encoded_location=video.video.encoded_location,
+                status=video.video.status,
+            )
 
-    @staticmethod
-    def _rating_name(rating: Rating | str) -> str:
-        return rating.name if isinstance(rating, Rating) else rating
+            # Atualizar os atributos do Video
+            video_model.title = video.title
+            video_model.description = video.description
+            video_model.launch_year = video.launch_year
+            video_model.opened = video.opened
+            video_model.duration = video.duration
+            video_model.rating = video.rating
+            video_model.published = video.published
 
-    @staticmethod
-    def _image_media(model: ImageMediaORM | None) -> ImageMedia | None:
-        if model is None:
-            return None
-        return ImageMedia(
-            checksum=model.checksum,
-            name=model.name,
-            location=model.raw_location,
-        )
-
-    @staticmethod
-    def _audio_video_media(model: AudioVideoMediaORM | None) -> AudioVideoMedia | None:
-        if model is None:
-            return None
-        return AudioVideoMedia(
-            checksum=model.checksum,
-            name=model.name,
-            raw_location=model.raw_location,
-            encoded_location=model.encoded_location,
-            status=MediaStatus[model.status],
-        )
-
-    @classmethod
-    def _to_entity(cls, video_model: VideoORM) -> Video:
-        return Video(
-            id=video_model.id,
-            title=video_model.title,
-            description=video_model.description,
-            launch_year=video_model.launch_year,
-            duration=video_model.duration,
-            published=video_model.published,
-            opened=video_model.opened,
-            rating=Rating[video_model.rating],
-            categories={category.id for category in video_model.categories.all()},
-            genres={genre.id for genre in video_model.genres.all()},
-            cast_members={cast_member.id for cast_member in video_model.cast_members.all()},
-            banner=cls._image_media(video_model.banner),
-            thumbnail=cls._image_media(video_model.thumbnail),
-            thumbnail_half=cls._image_media(video_model.thumbnail_half),
-            trailer=cls._audio_video_media(video_model.trailer),
-            video=cls._audio_video_media(video_model.video),
-        )
+            video_model.save()
