@@ -4,6 +4,7 @@ from django.db import transaction
 
 from src.core.video.domain.value_objects import (
     AudioVideoMedia,
+    MediaStatus,
 )
 from src.core.video.domain.video import Video
 from src.core.video.domain.video_repository import VideoRepository
@@ -32,6 +33,17 @@ class DjangoORMVideoRepository(VideoRepository):
     def get_by_id(self, id: UUID) -> Video | None:
         try:
             video_model = VideoORM.objects.get(pk=id)
+            video = None
+            if video_model.video:
+                video = AudioVideoMedia(
+                    name=video_model.video.name,
+                    raw_location=video_model.video.raw_location,
+                    encoded_location=video_model.video.encoded_location,
+                    status=MediaStatus[video_model.video.status]
+                    if isinstance(video_model.video.status, str)
+                    else video_model.video.status,
+                )
+
             return Video(
                 id=video_model.id,
                 title=video_model.title,
@@ -44,6 +56,7 @@ class DjangoORMVideoRepository(VideoRepository):
                 categories=set(video_model.categories.values_list('id', flat=True)),
                 genres=set(video_model.genres.values_list('id', flat=True)),
                 cast_members=set(video_model.cast_members.values_list('id', flat=True)),
+                video=video,
             )
         except VideoORM.DoesNotExist:
             return None
@@ -76,8 +89,9 @@ class DjangoORMVideoRepository(VideoRepository):
         except VideoORM.DoesNotExist:
             return None
         else:        
-            # Buscar e deletar video medias associadas
-            AudioVideoMedia.objects.filter(video_id=video.id).delete()
+            # Buscar e deletar video media anterior se existir
+            if video_model.video:
+                video_model.video.delete()
 
             # Atualiza relationships
             video_model.categories.set(video.categories)
@@ -85,12 +99,13 @@ class DjangoORMVideoRepository(VideoRepository):
             video_model.cast_members.set(video.cast_members)
 
             # Persistir o Value Object
-            video_model.video = AudioVideoMediaORM.objects.create(
-                name=video.video.name,
-                raw_location=video.video.raw_location,
-                encoded_location=video.video.encoded_location,
-                status=video.video.status,
-            )
+            if video.video:
+                video_model.video = AudioVideoMediaORM.objects.create(
+                    name=video.video.name,
+                    raw_location=video.video.raw_location,
+                    encoded_location=video.video.encoded_location,
+                    status=video.video.status.name if hasattr(video.video.status, "name") else video.video.status,
+                )
 
             # Atualizar os atributos do Video
             video_model.title = video.title

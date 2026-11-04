@@ -1,13 +1,17 @@
+from pathlib import Path
+from unittest.mock import patch
 import uuid
 
 import pytest
+from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from src.core._shared.infrastructure.storage.local_storage import LocalStorage
 from src.core.cast_member.domain.cast_member import CastMember, CastMemberType
 from src.core.category.domain.category import Category
 from src.core.genre.domain.genre import Genre
-from src.core.video.domain.value_objects import Rating
+from src.core.video.domain.value_objects import MediaStatus, Rating
 from src.django_project.cast_member_app.repository import DjangoORMCastMemberRepository
 from src.django_project.category_app.repository import DjangoORMCategoryRepository
 from src.django_project.genre_app.repository import DjangoORMGenreRepository
