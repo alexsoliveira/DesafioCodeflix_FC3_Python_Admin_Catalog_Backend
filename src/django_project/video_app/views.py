@@ -1,3 +1,4 @@
+from src.core._shared.events.message_bus import MessageBus
 from uuid import UUID
 
 from rest_framework import status, viewsets
@@ -57,7 +58,8 @@ class VideoViewSet(viewsets.ViewSet):
 
         upload_video = UploadVideo(
             video_repository=DjangoORMVideoRepository(),
-            storage_service=LocalStorage()
+            storage_service=LocalStorage(),
+            message_bus=MessageBus()
         )
 
         try:

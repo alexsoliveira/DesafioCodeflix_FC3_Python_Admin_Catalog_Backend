@@ -118,14 +118,12 @@ class TestImageMedia:
 class TestAudioVideoMedia:
     def test_create_audio_video_media(self):
         media = AudioVideoMedia(
-            checksum="e5f6g7h8",
             name="trailer.mp4",
             raw_location="/raw/trailer.mp4",
             encoded_location="/encoded/trailer.mp4",
             status=MediaStatus.PENDING,
         )
 
-        assert media.checksum == "e5f6g7h8"
         assert media.name == "trailer.mp4"
         assert media.raw_location == "/raw/trailer.mp4"
         assert media.encoded_location == "/encoded/trailer.mp4"
@@ -133,7 +131,6 @@ class TestAudioVideoMedia:
 
     def test_audio_video_media_is_immutable(self):
         media = AudioVideoMedia(
-            checksum="e5f6g7h8",
             name="trailer.mp4",
             raw_location="/raw/trailer.mp4",
             encoded_location="/encoded/trailer.mp4",
@@ -145,14 +142,12 @@ class TestAudioVideoMedia:
 
     def test_audio_video_media_equality(self):
         media_1 = AudioVideoMedia(
-            checksum="e5f6g7h8",
             name="trailer.mp4",
             raw_location="/raw/trailer.mp4",
             encoded_location="/encoded/trailer.mp4",
             status=MediaStatus.PROCESSING,
         )
         media_2 = AudioVideoMedia(
-            checksum="e5f6g7h8",
             name="trailer.mp4",
             raw_location="/raw/trailer.mp4",
             encoded_location="/encoded/trailer.mp4",
@@ -163,14 +158,12 @@ class TestAudioVideoMedia:
 
     def test_audio_video_media_inequality(self):
         media_1 = AudioVideoMedia(
-            checksum="e5f6g7h8",
             name="trailer.mp4",
             raw_location="/raw/trailer.mp4",
             encoded_location="/encoded/trailer.mp4",
             status=MediaStatus.PENDING,
         )
         media_2 = AudioVideoMedia(
-            checksum="e5f6g7h8",
             name="trailer.mp4",
             raw_location="/raw/trailer.mp4",
             encoded_location="/encoded/trailer.mp4",

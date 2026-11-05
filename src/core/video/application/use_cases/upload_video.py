@@ -2,8 +2,10 @@ from dataclasses import dataclass
 from pathlib import PurePosixPath
 from uuid import UUID
 
+from src.core._shared.events.abstract_message_bus import AbstractMessageBus
+from src.core.video.application.events.integration_events import AudioVideoMediaUpdatedIntegrationEvent
 from src.core._shared.infrastructure.storage.abstract_storage_service import AbstractStorageService
-from src.core.video.domain.value_objects import AudioVideoMedia, MediaStatus
+from src.core.video.domain.value_objects import AudioVideoMedia, MediaStatus, MediaType
 from src.core.video.application.exceptions import VideoNotFound
 from src.core.video.domain.video_repository import VideoRepository
 
@@ -19,10 +21,12 @@ class UploadVideo:
     def __init__(
             self, 
             video_repository: VideoRepository, 
-            storage_service: AbstractStorageService
+            storage_service: AbstractStorageService,
+            message_bus: AbstractMessageBus
     ):
         self.video_repository = video_repository
         self.storage_service = storage_service
+        self.message_bus = message_bus
 
     def execute(self, input: Input):
         # encontrar nossa entidade
@@ -44,13 +48,23 @@ class UploadVideo:
             raw_location=str(file_path),
             encoded_location="",
             status=MediaStatus.PENDING,
+            media_type=MediaType.VIDEO,
         )
 
         # video.upload_video(AudioVideoMedia)
         video.update_video(audio_video_media)
 
         # persistir essa entidade (com as valores associados)
-        self.video_repository.update(video)  
+        self.video_repository.update(video)
+
+        # Apos a transacao terminar (principal / commit)
+        # Disparar um evento de integracao
+        self.message_bus.handle([
+            AudioVideoMediaUpdatedIntegrationEvent(
+                resource_id=f"{video.id}.{MediaType.VIDEO}",
+                file_path=str(file_path)
+            )
+        ])
 
         
         
