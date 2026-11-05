@@ -5,3 +5,6 @@ class InvalidVideo(Exception):
 class RelationEntitiesNotFound(Exception):
     """Raised when a related entity is not found."""
     pass
+
+class VideoNotFound(Exception):
+    pass

@@ -42,8 +42,8 @@ class ImageMedia:
 
 @dataclass(frozen=True)
 class AudioVideoMedia:
-    checksum: str
     name: str
     raw_location: str
     encoded_location: str
     status: MediaStatus
+    checksum: str = ""

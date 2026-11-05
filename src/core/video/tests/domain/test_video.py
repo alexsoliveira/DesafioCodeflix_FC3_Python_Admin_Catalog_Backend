@@ -182,7 +182,7 @@ class TestAudioVideoMedia:
 
 class TestVideo:
     def test_title_is_required(self):
-        with pytest.raises(TypeError, match="missing 9 required positional arguments"):
+        with pytest.raises(TypeError, match="missing 8 required positional arguments"):
             Video()
 
     def test_video_must_be_created_with_id_as_uuid_by_default(self):
