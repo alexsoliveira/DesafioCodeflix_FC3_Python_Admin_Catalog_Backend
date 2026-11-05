@@ -5,6 +5,7 @@ from django.db import transaction
 from src.core.video.domain.value_objects import (
     AudioVideoMedia,
     MediaStatus,
+    Rating,
 )
 from src.core.video.domain.video import Video
 from src.core.video.domain.video_repository import VideoRepository
@@ -24,7 +25,7 @@ class DjangoORMVideoRepository(VideoRepository):
                 duration=video.duration,
                 published=video.published,
                 opened=video.opened,
-                rating=video.rating,
+                rating=video.rating.name if isinstance(video.rating, Rating) else video.rating,
             )
             video_model.categories.set(video.categories)
             video_model.genres.set(video.genres)
@@ -52,7 +53,7 @@ class DjangoORMVideoRepository(VideoRepository):
                 duration=video_model.duration,
                 published=video_model.published,
                 opened=video_model.opened,
-                rating=video_model.rating,
+                rating=Rating[video_model.rating] if isinstance(video_model.rating, str) else video_model.rating,
                 categories=set(video_model.categories.values_list('id', flat=True)),
                 genres=set(video_model.genres.values_list('id', flat=True)),
                 cast_members=set(video_model.cast_members.values_list('id', flat=True)),
@@ -75,7 +76,7 @@ class DjangoORMVideoRepository(VideoRepository):
                 duration=video_model.duration,
                 published=video_model.published,
                 opened=video_model.opened,
-                rating=video_model.rating,
+                rating=Rating[video_model.rating] if isinstance(video_model.rating, str) else video_model.rating,
                 categories=set(video_model.categories.values_list('id', flat=True)),
                 genres=set(video_model.genres.values_list('id', flat=True)),
                 cast_members=set(video_model.cast_members.values_list('id', flat=True)),
@@ -113,7 +114,7 @@ class DjangoORMVideoRepository(VideoRepository):
             video_model.launch_year = video.launch_year
             video_model.opened = video.opened
             video_model.duration = video.duration
-            video_model.rating = video.rating
+            video_model.rating = video.rating.name if isinstance(video.rating, Rating) else video.rating
             video_model.published = video.published
 
             video_model.save()

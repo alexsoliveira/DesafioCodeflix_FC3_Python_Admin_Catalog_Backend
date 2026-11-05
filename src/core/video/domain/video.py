@@ -50,12 +50,11 @@ class Video(Entity):
     launch_year: int
     duration: Decimal
     rating: Rating
-    opened: bool
-    
     categories: set[UUID]
     genres: set[UUID]
     cast_members: set[UUID]
 
+    opened: bool = False
     published: bool = field(default=False)
 
     banner: ImageMedia | None = None

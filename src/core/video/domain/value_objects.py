@@ -46,3 +46,4 @@ class AudioVideoMedia:
     raw_location: str
     encoded_location: str
     status: MediaStatus
+    checksum: str = ""

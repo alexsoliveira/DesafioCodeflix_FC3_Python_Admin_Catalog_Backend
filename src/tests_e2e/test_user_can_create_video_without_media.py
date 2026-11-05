@@ -34,7 +34,7 @@ class TestCreateVideoWithoutMedia:
         ).data["id"]
 
         response = api_client.post(
-            "/api/videos",
+            "/api/videos/",
             data={
                 "title": "title",
                 "description": "description",
@@ -69,7 +69,7 @@ class TestCreateVideoWithoutMedia:
         api_client = APIClient()
 
         response = api_client.post(
-            "/api/videos",
+            "/api/videos/",
             data={
                 "title": "title",
                 "description": "description",
@@ -94,7 +94,7 @@ class TestCreateVideoWithoutMedia:
 
     def test_user_gets_errors_when_payload_is_invalid(self) -> None:
         response = APIClient().post(
-            "/api/videos",
+            "/api/videos/",
             data={"title": "", "rating": "INVALID"},
             format="json",
         )
