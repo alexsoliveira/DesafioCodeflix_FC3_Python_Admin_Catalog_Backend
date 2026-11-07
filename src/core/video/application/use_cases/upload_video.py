@@ -6,7 +6,7 @@ from src.core._shared.events.abstract_message_bus import AbstractMessageBus
 from src.core.video.application.events.integration_events import AudioVideoMediaUpdatedIntegrationEvent
 from src.core._shared.infrastructure.storage.abstract_storage_service import AbstractStorageService
 from src.core.video.domain.value_objects import AudioVideoMedia, MediaStatus, MediaType
-from src.core.video.application.exceptions import VideoNotFound
+from core.video.application.use_cases.exceptions import VideoNotFound
 from src.core.video.domain.video_repository import VideoRepository
 
 class UploadVideo:

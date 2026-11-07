@@ -11,7 +11,7 @@ from src.core.category.domain.category import Category
 from src.core.category.domain.category_repository import CategoryRepository
 from src.core.genre.domain.genre import Genre
 from src.core.genre.domain.genre_repository import GenreRepository
-from src.core.video.application.exceptions import InvalidVideo, RelationEntitiesNotFound
+from core.video.application.use_cases.exceptions import InvalidVideo, RelationEntitiesNotFound
 from src.core.video.application.use_cases.create_video_without_media import (
     CreateVideoWithoutMedia,
 )
