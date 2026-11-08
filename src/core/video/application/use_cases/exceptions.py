@@ -8,3 +8,6 @@ class RelationEntitiesNotFound(Exception):
 
 class VideoNotFound(Exception):
     pass
+
+class MediaNotFound(Exception):
+    pass

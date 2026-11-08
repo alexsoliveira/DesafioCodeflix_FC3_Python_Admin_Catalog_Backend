@@ -6,7 +6,6 @@
         - Name: String
         - Location: String
     - AudioVideoMedia:
-        - Checksum: String
         - Name: String
         - RawLocation: String
         - EncondedLocation: String
@@ -15,17 +14,17 @@
 """
 
 from dataclasses import dataclass
-from enum import Enum, auto, unique
+from enum import StrEnum, auto, unique
 
 @unique
-class MediaStatus(Enum):
+class MediaStatus(StrEnum):
     PENDING = auto()
     PROCESSING = auto()
     COMPLETED = auto()
     ERROR = auto()
 
 @unique
-class Rating(Enum):
+class Rating(StrEnum):
     ER = auto()
     L = auto()
     AGE_10 = auto()
@@ -33,6 +32,14 @@ class Rating(Enum):
     AGE_14 = auto()
     AGE_16 = auto()
     AGE_18 = auto()
+
+@unique
+class MediaType(StrEnum):
+    VIDEO = "VIDEO"
+    TRAILER = "TRAILER"
+    BANNER = "BANNER"
+    THUMBNAIL = "THUMBNAIL"
+    THUMBNAIL_HALF = "THUMBNAIL_HALF"
 
 @dataclass(frozen=True)
 class ImageMedia:
@@ -46,4 +53,22 @@ class AudioVideoMedia:
     raw_location: str
     encoded_location: str
     status: MediaStatus
-    checksum: str = ""
+    media_type: MediaType = MediaType.VIDEO
+
+    def complete(self, encoded_location: str):
+        return AudioVideoMedia(
+            name=self.name,
+            raw_location=self.raw_location,
+            encoded_location=encoded_location,
+            status=MediaStatus.COMPLETED,
+            media_type=self.media_type,
+        )
+
+    def fail(self):
+        return AudioVideoMedia(
+            name=self.name,
+            raw_location=self.raw_location,
+            encoded_location=self.encoded_location,
+            status=MediaStatus.ERROR,
+            media_type=self.media_type,
+        )

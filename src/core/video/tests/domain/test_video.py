@@ -9,6 +9,7 @@ from src.core.video.domain.value_objects import (
     AudioVideoMedia,
     ImageMedia,
     MediaStatus,
+    MediaType,
     Rating,
 )
 from src.core.video.domain.video import Video
@@ -118,14 +119,12 @@ class TestImageMedia:
 class TestAudioVideoMedia:
     def test_create_audio_video_media(self):
         media = AudioVideoMedia(
-            checksum="e5f6g7h8",
             name="trailer.mp4",
             raw_location="/raw/trailer.mp4",
             encoded_location="/encoded/trailer.mp4",
             status=MediaStatus.PENDING,
         )
 
-        assert media.checksum == "e5f6g7h8"
         assert media.name == "trailer.mp4"
         assert media.raw_location == "/raw/trailer.mp4"
         assert media.encoded_location == "/encoded/trailer.mp4"
@@ -133,7 +132,6 @@ class TestAudioVideoMedia:
 
     def test_audio_video_media_is_immutable(self):
         media = AudioVideoMedia(
-            checksum="e5f6g7h8",
             name="trailer.mp4",
             raw_location="/raw/trailer.mp4",
             encoded_location="/encoded/trailer.mp4",
@@ -145,14 +143,12 @@ class TestAudioVideoMedia:
 
     def test_audio_video_media_equality(self):
         media_1 = AudioVideoMedia(
-            checksum="e5f6g7h8",
             name="trailer.mp4",
             raw_location="/raw/trailer.mp4",
             encoded_location="/encoded/trailer.mp4",
             status=MediaStatus.PROCESSING,
         )
         media_2 = AudioVideoMedia(
-            checksum="e5f6g7h8",
             name="trailer.mp4",
             raw_location="/raw/trailer.mp4",
             encoded_location="/encoded/trailer.mp4",
@@ -163,14 +159,12 @@ class TestAudioVideoMedia:
 
     def test_audio_video_media_inequality(self):
         media_1 = AudioVideoMedia(
-            checksum="e5f6g7h8",
             name="trailer.mp4",
             raw_location="/raw/trailer.mp4",
             encoded_location="/encoded/trailer.mp4",
             status=MediaStatus.PENDING,
         )
         media_2 = AudioVideoMedia(
-            checksum="e5f6g7h8",
             name="trailer.mp4",
             raw_location="/raw/trailer.mp4",
             encoded_location="/encoded/trailer.mp4",
@@ -423,3 +417,197 @@ class TestEquality:
         )
 
         assert video_1 != video_2
+
+
+class TestPublishVideo:
+    def test_cannot_publish_video_without_video_media(self):
+        video = Video(
+            title="The Matrix",
+            description="Sci-fi",
+            launch_year=1999,
+            duration=Decimal("136.0"),
+            rating=Rating.AGE_14,
+            categories=set(),
+            genres=set(),
+            cast_members=set(),
+        )
+
+        with pytest.raises(ValueError, match="Video media is required to publish the video"):
+            video.publish()
+
+    def test_cannot_publish_video_with_uncompleted_video_media(self):
+        video = Video(
+            title="The Matrix",
+            description="Sci-fi",
+            launch_year=1999,
+            duration=Decimal("136.0"),
+            rating=Rating.AGE_14,
+            categories=set(),
+            genres=set(),
+            cast_members=set(),
+            video=AudioVideoMedia(
+                name="matrix.mp4",
+                raw_location="/raw/matrix.mp4",
+                encoded_location="",
+                status=MediaStatus.PROCESSING,
+            ),
+        )
+
+        with pytest.raises(ValueError, match="Video must be fully processed to be published"):
+            video.publish()
+
+    def test_can_publish_video_with_completed_video_media(self):
+        video = Video(
+            title="The Matrix",
+            description="Sci-fi",
+            launch_year=1999,
+            duration=Decimal("136.0"),
+            rating=Rating.AGE_14,
+            categories=set(),
+            genres=set(),
+            cast_members=set(),
+            video=AudioVideoMedia(
+                name="matrix.mp4",
+                raw_location="/raw/matrix.mp4",
+                encoded_location="/encoded/matrix.mp4",
+                status=MediaStatus.COMPLETED,
+            ),
+        )
+
+        assert video.published is False
+        video.publish()
+        assert video.published is True
+
+
+class TestProcessVideoMedia:
+    def test_process_video_raises_when_no_video_media(self):
+        video = Video(
+            title="The Matrix",
+            description="Sci-fi",
+            launch_year=1999,
+            duration=Decimal("136.0"),
+            rating=Rating.AGE_14,
+            categories=set(),
+            genres=set(),
+            cast_members=set(),
+        )
+
+        with pytest.raises(ValueError, match="Video media is required to be processed"):
+            video.process_video(status=MediaStatus.COMPLETED, encoded_location="/encoded/matrix.mp4")
+
+    def test_process_video_completed_publishes_video(self):
+        video = Video(
+            title="The Matrix",
+            description="Sci-fi",
+            launch_year=1999,
+            duration=Decimal("136.0"),
+            rating=Rating.AGE_14,
+            categories=set(),
+            genres=set(),
+            cast_members=set(),
+            video=AudioVideoMedia(
+                name="matrix.mp4",
+                raw_location="/raw/matrix.mp4",
+                encoded_location="",
+                status=MediaStatus.PROCESSING,
+                media_type=MediaType.VIDEO,
+            ),
+        )
+
+        video.process_video(status=MediaStatus.COMPLETED, encoded_location="/encoded/matrix.mp4")
+
+        assert video.video.status == MediaStatus.COMPLETED
+        assert video.video.encoded_location == "/encoded/matrix.mp4"
+        assert video.published is True
+
+    def test_process_video_error_sets_status_error_and_does_not_publish(self):
+        video = Video(
+            title="The Matrix",
+            description="Sci-fi",
+            launch_year=1999,
+            duration=Decimal("136.0"),
+            rating=Rating.AGE_14,
+            categories=set(),
+            genres=set(),
+            cast_members=set(),
+            video=AudioVideoMedia(
+                name="matrix.mp4",
+                raw_location="/raw/matrix.mp4",
+                encoded_location="",
+                status=MediaStatus.PROCESSING,
+                media_type=MediaType.VIDEO,
+            ),
+        )
+
+        video.process_video(status=MediaStatus.ERROR)
+
+        assert video.video.status == MediaStatus.ERROR
+        assert video.published is False
+
+
+class TestProcessTrailerMedia:
+    def test_process_trailer_raises_when_no_trailer_media(self):
+        video = Video(
+            title="The Matrix",
+            description="Sci-fi",
+            launch_year=1999,
+            duration=Decimal("136.0"),
+            rating=Rating.AGE_14,
+            categories=set(),
+            genres=set(),
+            cast_members=set(),
+        )
+
+        with pytest.raises(ValueError, match="Trailer media is required to be processed"):
+            video.process_trailer(status=MediaStatus.COMPLETED, encoded_location="/encoded/trailer.mp4")
+
+    def test_process_trailer_completed_does_not_publish_video(self):
+        video = Video(
+            title="The Matrix",
+            description="Sci-fi",
+            launch_year=1999,
+            duration=Decimal("136.0"),
+            rating=Rating.AGE_14,
+            categories=set(),
+            genres=set(),
+            cast_members=set(),
+            trailer=AudioVideoMedia(
+                name="trailer.mp4",
+                raw_location="/raw/trailer.mp4",
+                encoded_location="",
+                status=MediaStatus.PROCESSING,
+                media_type=MediaType.TRAILER,
+            ),
+        )
+
+        video.process_trailer(status=MediaStatus.COMPLETED, encoded_location="/encoded/trailer.mp4")
+
+        assert video.trailer.status == MediaStatus.COMPLETED
+        assert video.trailer.encoded_location == "/encoded/trailer.mp4"
+        assert video.published is False
+
+    def test_process_trailer_error_sets_status_error(self):
+        video = Video(
+            title="The Matrix",
+            description="Sci-fi",
+            launch_year=1999,
+            duration=Decimal("136.0"),
+            rating=Rating.AGE_14,
+            categories=set(),
+            genres=set(),
+            cast_members=set(),
+            trailer=AudioVideoMedia(
+                name="trailer.mp4",
+                raw_location="/raw/trailer.mp4",
+                encoded_location="",
+                status=MediaStatus.PROCESSING,
+                media_type=MediaType.TRAILER,
+            ),
+        )
+
+        video.process_trailer(status=MediaStatus.ERROR)
+
+        assert video.trailer.status == MediaStatus.ERROR
+        assert video.published is False
+
+

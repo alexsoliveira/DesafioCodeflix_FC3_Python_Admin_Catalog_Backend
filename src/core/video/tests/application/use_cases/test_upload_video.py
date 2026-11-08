@@ -1,9 +1,11 @@
 from unittest.mock import create_autospec
 
+from src.core._shared.events.abstract_message_bus import AbstractMessageBus
+from src.core.video.application.events.integration_events import AudioVideoMediaUpdatedIntegrationEvent
 from src.core._shared.infrastructure.storage.abstract_storage_service import AbstractStorageService
 from src.core.video.application.use_cases.upload_video import UploadVideo
 from src.core.video.infra.in_memory_video_repository import InMemoryVideoRepository
-from src.core.video.domain.value_objects import AudioVideoMedia, MediaStatus, Rating
+from src.core.video.domain.value_objects import AudioVideoMedia, MediaStatus, MediaType, Rating
 from src.core.video.domain.video import Video
 
 class TestUploadVideo:
@@ -27,10 +29,12 @@ class TestUploadVideo:
 
         video_repository = InMemoryVideoRepository(videos=[video])
         mock_storage = create_autospec(AbstractStorageService)
+        mock_message_bus = create_autospec(AbstractMessageBus)
 
         use_case = UploadVideo(
             video_repository=video_repository,
-            storage_service=mock_storage
+            storage_service=mock_storage,
+            message_bus=mock_message_bus
         )
         input = UploadVideo.Input(
             video_id=video.id,
@@ -45,21 +49,33 @@ class TestUploadVideo:
             content=b"conteudo do arquivo",
             content_type="video/mp4"
         )
-        video_from_repo = video_repository.get_by_id(video.id)
-        video_from_repo.video == AudioVideoMedia(
+        assert video.video == AudioVideoMedia(
             name="video.mp4",
             raw_location=f"videos/{video.id}/video.mp4",
             encoded_location="",
-            status=MediaStatus.PENDING
+            status=MediaStatus.PENDING,
+            media_type=MediaType.VIDEO
+        )
+
+        assert video_repository.videos[0] == video
+        mock_message_bus.handle.assert_called_once_with(
+            [
+                AudioVideoMediaUpdatedIntegrationEvent(
+                    resource_id=f"{video.id}.{MediaType.VIDEO}",
+                    file_path=f"videos/{video.id}/video.mp4"
+                )
+            ]
         )
 
     def test_when_video_does_not_exist_then_raise_error(self):
         video_repository = InMemoryVideoRepository(videos=[])
         mock_storage = create_autospec(AbstractStorageService)
+        mock_message_bus = create_autospec(AbstractMessageBus)
 
         use_case = UploadVideo(
             video_repository=video_repository,
-            storage_service=mock_storage
+            storage_service=mock_storage,
+            message_bus=mock_message_bus
         )
         input = UploadVideo.Input(
             video_id="non-existent-id",

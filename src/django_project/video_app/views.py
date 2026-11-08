@@ -1,3 +1,4 @@
+from src.core._shared.events.message_bus import MessageBus
 from uuid import UUID
 
 from rest_framework import status, viewsets
@@ -5,7 +6,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from src.core._shared.infrastructure.storage.local_storage import LocalStorage
-from src.core.video.application.exceptions import InvalidVideo, RelationEntitiesNotFound, VideoNotFound
+from core.video.application.use_cases.exceptions import InvalidVideo, RelationEntitiesNotFound, VideoNotFound
 from src.core.video.application.use_cases.create_video_without_media import CreateVideoWithoutMedia
 from src.core.video.application.use_cases.upload_video import UploadVideo
 from src.django_project.cast_member_app.repository import DjangoORMCastMemberRepository
@@ -57,7 +58,8 @@ class VideoViewSet(viewsets.ViewSet):
 
         upload_video = UploadVideo(
             video_repository=DjangoORMVideoRepository(),
-            storage_service=LocalStorage()
+            storage_service=LocalStorage(),
+            message_bus=MessageBus()
         )
 
         try:

@@ -8,7 +8,7 @@ from src.core.video.domain.video_repository import VideoRepository
 from src.core.cast_member.domain.cast_member_repository import CastMemberRepository
 from src.core.category.domain.category_repository import CategoryRepository
 from src.core.genre.domain.genre_repository import GenreRepository
-from src.core.video.application.exceptions import InvalidVideo, RelationEntitiesNotFound
+from core.video.application.use_cases.exceptions import InvalidVideo, RelationEntitiesNotFound
 from src.core.video.domain.value_objects import Rating
 from src.core.video.domain.video import Video
 
