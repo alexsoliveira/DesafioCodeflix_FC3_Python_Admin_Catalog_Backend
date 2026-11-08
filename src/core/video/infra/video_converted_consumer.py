@@ -1,10 +1,10 @@
 import logging
 from uuid import UUID
 
-from django.core.serializers import json
+import json
 import pika
 
-from django_project.video_app.repository import DjangoORMVideoRepository
+from src.django_project.video_app.repository import DjangoORMVideoRepository
 from src.core._shared.events.abstract_consumer import AbstractConsumer
 from src.core.video.application.use_cases.process_audio_video_media import ProcessAudioVideoMedia
 from src.core.video.domain.value_objects import MediaStatus, MediaType
@@ -18,7 +18,7 @@ class VideoConvertedRabbitMQConsumer(AbstractConsumer):
         self.connection = None
         self.channel = None
 
-    def on_message(self, message):
+    def on_message(self, message: bytes):
         """
         {
             "error": "",
