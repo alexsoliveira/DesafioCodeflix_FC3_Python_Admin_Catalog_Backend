@@ -66,7 +66,7 @@ class Video(Entity):
     def __post_init__(self):
             self.validate()
 
-    def published(self) -> None:
+    def publish(self) -> None:
         if not self.video:
             self.notification.add_error("Video media is required to publish the video")
         elif self.video.status != MediaStatus.COMPLETED:
@@ -127,25 +127,30 @@ class Video(Entity):
         self.video = video
         self.validate()
 
-    def process(self, status, encoded_location):
+    def process_video(self, status: MediaStatus, encoded_location: str = ""):
+        if not self.video:
+            raise ValueError("Video media is required to be processed")
+
         if status == MediaStatus.COMPLETED:
-            self.video = AudioVideoMedia( # self.video = self.video.complete(encoded_location)
-                name=self.video.name,
-                raw_location=self.video.raw_location,
-                encoded_location=encoded_location,
-                status=status,
-                media_type=MediaType.VIDEO
-            )
-            self.published()
+            self.video = self.video.complete(encoded_location)
+            self.publish()
         else:
-            self.video = AudioVideoMedia( # self.video = self.video.fail()
-                name=self.video.name,
-                raw_location=self.video.raw_location,
-                media_type=MediaType.VIDEO,
-                encoded_location="",
-                status=MediaStatus.ERROR,
-            )
+            self.video = self.video.fail()
         self.validate()
+
+    def process_trailer(self, status: MediaStatus, encoded_location: str = ""):
+        if not self.trailer:
+            raise ValueError("Trailer media is required to be processed")
+
+        if status == MediaStatus.COMPLETED:
+            self.trailer = self.trailer.complete(encoded_location)
+        else:
+            self.trailer = self.trailer.fail()
+        self.validate()
+
+    def process(self, status, encoded_location):
+        self.process_video(status=status, encoded_location=encoded_location)
+
 
 
     
