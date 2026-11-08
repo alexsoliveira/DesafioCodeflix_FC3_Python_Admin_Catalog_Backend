@@ -23,7 +23,7 @@ class VideoConvertedRabbitMQConsumer(AbstractConsumer):
         {
             "error": "",
             "video": {
-                "resource_id": "c97093dd-9685-4e1c-8f3b-2d5e6f9a1b2c.VIDEO",
+                "resource_id": "4ad914af-fdda-4496-ae0c-1c7c581d347e.VIDEO",
                 "encoded_video_folder": "/path/to/encoded/video"
             },
             "status": "COMPLETED"
